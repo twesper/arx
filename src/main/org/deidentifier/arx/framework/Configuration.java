@@ -79,7 +79,7 @@ public final class Configuration implements ARXConfiguration {
     }
 
     /** use disk based history to save memory */
-    private boolean                              diskBasedHistory                = false;
+    private boolean                              diskBasedHistory                = true;
 
     /** Criterion */
     private ARXConfiguration.Criterion           criterion                       = null;
