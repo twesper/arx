@@ -27,12 +27,15 @@ public class SnapshotManager {
     // private static final String snaphotTempFile = "snapshots.tmp";
     private FileChannel             channel      = null;
 
+    @SuppressWarnings("resource")
     public SnapshotManager() {
         cache = new HashMap<Integer, int[]>();
         queue = new LinkedList<Integer>();
         startOffsets = new HashMap<Integer, Long>();
         try {
-            channel = new RandomAccessFile(File.createTempFile("arxSnapShots", ".tmp", new File(".")), "rw").getChannel();
+            File temp = File.createTempFile("arxSnapShots", ".tmp", new File("."));
+            temp.deleteOnExit();
+            channel = new RandomAccessFile(temp, "rw").getChannel();
             channel.truncate(0);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -58,7 +61,7 @@ public class SnapshotManager {
             for (int j : snapshot) {
                 buf.putInt(j);
             }
-            buf.force();
+            // buf.force();
             lastOffset = channel.position();
         } catch (IOException e) {
             e.printStackTrace();
