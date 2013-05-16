@@ -18,8 +18,8 @@
 
 package org.deidentifier.arx.framework.check.history;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.deidentifier.arx.framework.Configuration;
 import org.deidentifier.arx.framework.check.distribution.Distribution;
@@ -33,16 +33,16 @@ import org.deidentifier.arx.framework.lattice.Node;
  * 
  * @author Prasser, Kohlmayer
  */
-public class History implements IHistory {
+public class HistoryDiskBased implements IHistory {
 
-    /** The actual buffer. */
-    private MRUCache<Node>           cache          = null;
+    /** A map containing a link from node to snapshot number */
+    private HashMap<Node, Integer>   map            = null;
+    
+    /** List of the nodes for which snapshots are available */
+    private ArrayList<Node>          nodesWithSnapshots      = null;
 
-    /** Maximal number of entries. */
-    private final int                maxSize;
-
-    /** A map from nodes to snapshots. */
-    private HashMap<Node, int[]>     nodeToSnapshot = null;
+    /** Disk based manger for the nodesWithSnapshots */
+    private SnapshotManager          snapShotManager = null;
 
     /** The snapshotSizeDataset for the size of entries. */
     private final long               snapshotSizeDataset;
@@ -72,18 +72,18 @@ public class History implements IHistory {
      * @param snapshotSizeDataset
      *            the snapshotSizeDataset
      */
-    public History(final int rowCount,
-                   final int maxSize,
-                   final double snapshotSizeDataset,
-                   final double snapshotSizeSnapshot,
-                   final Configuration config,
-                   final IntArrayDictionary dictionarySensValue,
-                   final IntArrayDictionary dictionarySensFreq) {
+    public HistoryDiskBased(final int rowCount,
+                            final int maxSize,
+                            final double snapshotSizeDataset,
+                            final double snapshotSizeSnapshot,
+                            final Configuration config,
+                            final IntArrayDictionary dictionarySensValue,
+                            final IntArrayDictionary dictionarySensFreq) {
         this.snapshotSizeDataset = (long) (rowCount * snapshotSizeDataset);
         this.snapshotSizeSnapshot = snapshotSizeSnapshot;
-        cache = new MRUCache<Node>(maxSize);
-        nodeToSnapshot = new HashMap<Node, int[]>(maxSize);
-        this.maxSize = maxSize;
+        map = new HashMap<Node, Integer>();
+        nodesWithSnapshots = new ArrayList<Node>();
+        snapShotManager = new SnapshotManager();
         this.dictionarySensFreq = dictionarySensFreq;
         this.dictionarySensValue = dictionarySensValue;
         this.config = config;
@@ -209,22 +209,15 @@ public class History implements IHistory {
      *            the node
      * @return the int[]
      */
-    @Override
     public int[] get(final Node node) {
 
-        int[] rData = null;
         Node rNode = null;
+        int rDataLength = Integer.MAX_VALUE;
 
-        // Iterate over nodes with snapshots
-        MRUCacheEntry<Node> entry = cache.getFirst();
-        while (entry != null) {
-            final Node cNode = entry.data;
-
+        for (Node cNode : nodesWithSnapshots) {
             if (cNode.getLevel() < node.getLevel()) {
-                final int[] cSnapshot = nodeToSnapshot.get(cNode);
-
-                if ((rNode == null) || (cSnapshot.length < rData.length)) {
-
+                int cSnapshotLength = snapShotManager.getSnapShotLength(map.get(cNode));
+                if ((rNode == null) || (cSnapshotLength < rDataLength)) {
                     boolean synergetic = true;
                     for (int i = 0; i < cNode.getTransformation().length; i++) {
                         if (node.getTransformation()[i] < cNode.getTransformation()[i]) {
@@ -234,28 +227,24 @@ public class History implements IHistory {
                     }
                     if (synergetic) {
                         rNode = cNode;
-                        rData = cSnapshot;
+                        rDataLength = cSnapshotLength;
                     }
                 }
             }
-            entry = entry.next;
         }
 
-        if (rNode != null) {
-            cache.touch(rNode);
-        }
-
+        // no snapshot found
+        if (rNode == null) { return null; }
+        int snapShotNumber = map.get(rNode);
         resultNode = rNode;
 
-        return rData;
+        return snapShotManager.get(snapShotNumber);
     }
 
-    @Override
     public IntArrayDictionary getDictionarySensFreq() {
         return dictionarySensFreq;
     }
 
-    @Override
     public IntArrayDictionary getDictionarySensValue() {
         return dictionarySensValue;
     }
@@ -265,66 +254,21 @@ public class History implements IHistory {
      * 
      * @return
      */
-    @Override
     public Node getNode() {
         return resultNode;
     }
 
     /**
-     * Remove least recently used from cache and index.
-     */
-    private final void purgeCache() {
-        int purged = 0;
-
-        // Purge prunable nodes
-        final Iterator<Node> it = cache.iterator();
-        while (it.hasNext()) {
-            final Node node = it.next();
-            if (canPrune(node)) {
-                purged++;
-                it.remove();
-                removeHistoryEntry(node);
-
-            }
-        }
-
-        // Purge LRU
-        if (purged == 0) {
-            final Node node = cache.removeHead();
-            removeHistoryEntry(node);
-        }
-    }
-
-    private final void removeHistoryEntry(final Node node) {
-        final int[] snapshot = nodeToSnapshot.remove(node);
-
-        // in case of l-diversity/t-closeness clear freqdictionary
-        switch (config.getCriterion()) {
-        case L_DIVERSITY:
-        case T_CLOSENESS:
-            for (int i = 0; i < snapshot.length; i += 4) {
-                dictionarySensValue.decrementRefCount(snapshot[i + 2]);
-                dictionarySensFreq.decrementRefCount(snapshot[i + 3]);
-            }
-            break;
-        default:
-            break;
-        }
-    }
-
-    /**
      * Clears the history.
      */
-    @Override
     public void reset() {
-        cache.clear();
-        nodeToSnapshot.clear();
+        map.clear();
+        nodesWithSnapshots.clear();
+        snapShotManager.clear();
     }
 
-    @Override
     public int size() {
-        return cache.size();
-
+        return nodesWithSnapshots.size();
     }
 
     /**
@@ -335,7 +279,6 @@ public class History implements IHistory {
      * @param g
      *            the g
      */
-    @Override
     public boolean store(final Node node, final IHashGroupify g, final int[] usedSnapshot) {
 
         if ((node.isAnonymous() || (g.size() > snapshotSizeDataset) || canPrune(node))) { return false; }
@@ -368,14 +311,11 @@ public class History implements IHistory {
             throw new UnsupportedOperationException(config.getCriterion() + ": currenty not supported");
         }
 
-        // if cache size is to large purge
-        if (cache.size() >= maxSize) {
-            purgeCache();
-        }
-
-        // assign snapshot and keep reference for cache
-        nodeToSnapshot.put(node, data);
-        cache.append(node);
+        // store
+        int snapshotNumber = nodesWithSnapshots.size() + 1;
+        nodesWithSnapshots.add(node);
+        map.put(node, snapshotNumber);
+        snapShotManager.store(snapshotNumber, data);
 
         return true;
     }

@@ -18,7 +18,7 @@
 
 package org.deidentifier.arx.framework.check;
 
-import org.deidentifier.arx.framework.check.history.History;
+import org.deidentifier.arx.framework.check.history.IHistory;
 import org.deidentifier.arx.framework.lattice.Node;
 
 /**
@@ -65,7 +65,7 @@ public class StateMachine {
     }
 
     /** The history. */
-    private History    history  = null;
+    private IHistory    history  = null;
 
     /** The last node, which has been checked for k-anonymity. */
     private Node       lastNode;
@@ -85,7 +85,7 @@ public class StateMachine {
      * @param history
      *            the history
      */
-    public StateMachine(final History history) {
+    public StateMachine(final IHistory history) {
         lastNode = null;
         lastTransition = null;
         this.history = history;

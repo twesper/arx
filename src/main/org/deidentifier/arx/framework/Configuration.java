@@ -78,78 +78,81 @@ public final class Configuration implements ARXConfiguration {
         return new Configuration(ARXConfiguration.Criterion.D_PRESENCE, 3, relativeMaxOutliers, k, dMin, dMax, researchSubset);
     }
 
+    /** use disk based history to save memory */
+    private boolean                              diskBasedHistory                = false;
+
     /** Criterion */
     private ARXConfiguration.Criterion           criterion                       = null;
 
     /** Snapshot length */
-    private int                                    criterionSpecificSnapshotLength = -1;
+    private int                                  criterionSpecificSnapshotLength = -1;
 
     /** Absolute tuple relativeMaxOutliers */
-    private int                                    absoluteMaxOutliers             = -1;
+    private int                                  absoluteMaxOutliers             = -1;
 
     /** Relative tuple relativeMaxOutliers */
-    private double                                 relativeMaxOutliers             = -1;
+    private double                               relativeMaxOutliers             = -1;
 
     /** Absolute tuple relativeMaxOutliers computed? */
-    private boolean                                absoluteMaxOutliersSet          = false;
+    private boolean                              absoluteMaxOutliersSet          = false;
 
     /** K-anonymity */
-    private int                                    k                               = -1;
+    private int                                  k                               = -1;
 
     /** L-Diversity */
-    private int                                    l                               = -1;
+    private int                                  l                               = -1;
 
     /** L-Diversity */
-    private double                                 c                               = -1;
+    private double                               c                               = -1;
 
     /** L-Diversity */
     private ARXConfiguration.LDiversityCriterion lDiversityCriterion             = null;
 
     /** T-Closeness */
-    private double                                 t                               = -1;
+    private double                               t                               = -1;
 
     /** T-Closeness */
     private ARXConfiguration.TClosenessCriterion tClosenessCriterion             = null;
 
     /** T-Closeness */
-    private double[]                               tClosenessDistribution          = null;
+    private double[]                             tClosenessDistribution          = null;
 
     /** T-Closeness */
-    private Hierarchy                              tClosenessHierarchy             = null;
+    private Hierarchy                            tClosenessHierarchy             = null;
 
     /**
      * Tree data format: #p_count, #leafs, height, freqLeaf_1, ..., freqLeaf_n,
      * extra_1,..., extra_n, [#childs, level, child_1, ... child_x, pos_e,
      * neg_e], ...
      */
-    private int[]                                  tree                            = null;
+    private int[]                                tree                            = null;
 
     /** T-Closeness */
-    private boolean                                tCloseParamsSet                 = false;
+    private boolean                              tCloseParamsSet                 = false;
 
     /** D-Presence */
-    private double                                 dMin                            = -1;
+    private double                               dMin                            = -1;
 
     /** D-Presence */
-    private double                                 dMax                            = -1;
+    private double                               dMax                            = -1;
 
     /** D-Presence */
-    private BitSetCompressed                       researchSubsetBitSet            = null;
+    private BitSetCompressed                     researchSubsetBitSet            = null;
 
     /** D-Presence */
-    private Set<Integer>                           researchSubset                  = null;
+    private Set<Integer>                         researchSubset                  = null;
 
     /** D-Presence */
-    private boolean                                dPresenceParamsSet              = false;
+    private boolean                              dPresenceParamsSet              = false;
 
     /** Do we assume practical monotonicity */
-    private boolean                                practicalMonotonicity           = false;
+    private boolean                              practicalMonotonicity           = false;
 
     /** The pruning mode in the history */
-    private HistoryPruning                         pruning                         = HistoryPruning.ANONYMOUS;
+    private HistoryPruning                       pruning                         = HistoryPruning.ANONYMOUS;
 
     /** The history size mode */
-    private HistorySize                            historySize                     = HistorySize.RESTRICTED_HISTORY_SIZE;
+    private HistorySize                          historySize                     = HistorySize.RESTRICTED_HISTORY_SIZE;
 
     /**
      * Creates an l-diversity configuration
@@ -578,5 +581,19 @@ public final class Configuration implements ARXConfiguration {
         for (Integer line : researchSubset) {
             researchSubsetBitSet.set(line);
         }
+    }
+
+    /**
+     * @return the diskBasedHistory
+     */
+    public final boolean isDiskBasedHistory() {
+        return diskBasedHistory;
+    }
+
+    /**
+     * @param diskBasedHistory the diskBasedHistory to set
+     */
+    public final void setDiskBasedHistory(boolean useDiskBasedHistory) {
+        this.diskBasedHistory = useDiskBasedHistory;
     }
 }
