@@ -24,7 +24,7 @@ import org.deidentifier.arx.framework.check.distribution.IntArrayDictionary;
 import org.deidentifier.arx.framework.check.groupify.HashGroupify;
 import org.deidentifier.arx.framework.check.groupify.IHashGroupify;
 import org.deidentifier.arx.framework.check.history.History;
-import org.deidentifier.arx.framework.check.history.HistoryDiskBased;
+import org.deidentifier.arx.framework.check.history.HistoryDiskBasedNew;
 import org.deidentifier.arx.framework.check.history.IHistory;
 import org.deidentifier.arx.framework.data.Data;
 import org.deidentifier.arx.framework.data.DataManager;
@@ -108,7 +108,7 @@ public class NodeChecker implements INodeChecker {
         }
 
         if (config.isDiskBasedHistory()) {
-            history = new HistoryDiskBased(manager.getDataQI().getArray().length, historyMaxSize, snapshotSizeDataset, snapshotSizeSnapshot, config, dictionarySensValue, dictionarySensFreq);
+            history = new HistoryDiskBasedNew(manager.getDataQI().getArray().length, historyMaxSize, snapshotSizeDataset, snapshotSizeSnapshot, config, dictionarySensValue, dictionarySensFreq);
         } else {
             history = new History(manager.getDataQI().getArray().length, historyMaxSize, snapshotSizeDataset, snapshotSizeSnapshot, config, dictionarySensValue, dictionarySensFreq);
         }
