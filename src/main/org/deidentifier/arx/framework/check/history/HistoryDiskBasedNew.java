@@ -436,14 +436,14 @@ public class HistoryDiskBasedNew implements IHistory {
             if (canPrune(node)) {
                 purged++;
                 it.remove();
-                removeHistoryEntry(node);
+                removeHistoryEntry(node, false);
             }
         }
 
         // Purge LRU
         if (purged == 0) {
             final Node node = cache.removeHead();
-            removeHistoryEntry(node);
+            removeHistoryEntry(node, true);
         }
     }
 
@@ -467,13 +467,13 @@ public class HistoryDiskBasedNew implements IHistory {
         return snapshot;
     }
 
-    private final void removeHistoryEntry(final Node node) {
+    private final void removeHistoryEntry(final Node node, boolean persist) {
 
         final Integer snapshotID = nodeToID.get(node);
         final int[] snapshot = nodeToSnapshot.remove(snapshotID);
 
         // persist snapshots on disk if not already done
-        if (!locations.containsKey(snapshotID)) {
+        if (persist & !locations.containsKey(snapshotID)) {
             storeToDisk(snapshotID, snapshot);
         }
 
