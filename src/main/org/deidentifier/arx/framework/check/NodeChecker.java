@@ -40,29 +40,32 @@ import org.deidentifier.arx.metric.Metric;
  */
 public class NodeChecker implements INodeChecker {
 
+    // TODO: quite slow up to now - no caching, compression...
+    private static final boolean USE_DISTRIBUTIONS_DISK_BASED = false;
+
     /** The current hash groupify. */
-    protected IHashGroupify     currentGroupify;
+    protected IHashGroupify      currentGroupify;
 
     /** The history. */
-    protected IHistory          history;
+    protected IHistory           history;
 
     /** The last hash groupify. */
-    protected IHashGroupify     lastGroupify;
+    protected IHashGroupify      lastGroupify;
 
     /** The metric. */
-    protected Metric<?>         metric;
+    protected Metric<?>          metric;
 
     /** The state machine. */
-    protected StateMachine      stateMachine;
+    protected StateMachine       stateMachine;
 
     /** The data transformer. */
-    protected Transformer       transformer;
+    protected Transformer        transformer;
 
     /** The data. */
-    private final Data          data;
+    private final Data           data;
 
     /** The config */
-    private final Configuration config;
+    private final Configuration  config;
 
     /**
      * Creates a new NodeChecker instance.
@@ -102,14 +105,13 @@ public class NodeChecker implements INodeChecker {
         case L_DIVERSITY:
         case T_CLOSENESS:
 
-            // TODO: disabled; slow...
-            // if (config.isDiskBasedHistory()) {
-            // dictionarySensValue = new IntArrayDictionaryDiskBased(initialSize);
-            // dictionarySensFreq = new IntArrayDictionaryDiskBased(initialSize);
-            // } else {
-            dictionarySensValue = new IntArrayDictionary(initialSize);
-            dictionarySensFreq = new IntArrayDictionary(initialSize);
-            // }
+            if (config.isDiskBasedHistory() && USE_DISTRIBUTIONS_DISK_BASED) {
+                dictionarySensValue = new IntArrayDictionaryDiskBased(initialSize);
+                dictionarySensFreq = new IntArrayDictionaryDiskBased(initialSize);
+            } else {
+                dictionarySensValue = new IntArrayDictionary(initialSize);
+                dictionarySensFreq = new IntArrayDictionary(initialSize);
+            }
             break;
 
         default:
