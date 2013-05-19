@@ -3,12 +3,17 @@ package org.deidentifier.arx.framework.check.history;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
 
+import org.xerial.snappy.Snappy;
+
 public class IntArraySwapFile {
+
+    private static final boolean USE_COMPRESSION = true;
 
     class SnapshotLocationOnDisk {
         final long startOffset;
@@ -78,10 +83,20 @@ public class IntArraySwapFile {
 
     public int[] read(final Integer swapedObjectID) {
         final SnapshotLocationOnDisk location = locations.get(swapedObjectID);
-        final int[] snapshot = new int[(int) ((location.stopOffset - location.startOffset) / 4)];
+        int[] snapshot = null;
         try {
-            final IntBuffer buf = channel.map(FileChannel.MapMode.READ_ONLY, location.startOffset, 4 * snapshot.length).asIntBuffer();
-            buf.get(snapshot);
+
+            if (USE_COMPRESSION) {
+                final int size = (int) (location.stopOffset - location.startOffset);
+                final ByteBuffer buf = channel.map(FileChannel.MapMode.READ_ONLY, location.startOffset, size);
+                final byte[] compressed = new byte[size];
+                buf.get(compressed);
+                snapshot = Snappy.uncompressIntArray(compressed);
+            } else {
+                snapshot = new int[(int) ((location.stopOffset - location.startOffset) / 4)];
+                final IntBuffer buf = channel.map(FileChannel.MapMode.READ_ONLY, location.startOffset, 4 * snapshot.length).asIntBuffer();
+                buf.get(snapshot);
+            }
         } catch (final IOException e) {
             e.printStackTrace();
         }
@@ -92,11 +107,16 @@ public class IntArraySwapFile {
 
         final long startOffset = lastOffset;
         try {
-            final MappedByteBuffer buf = channel.map(FileChannel.MapMode.READ_WRITE, startOffset, 4 * snapshot.length);
-            for (final int j : snapshot) {
-                buf.putInt(j);
+
+            if (USE_COMPRESSION) {
+                final byte[] compressed = Snappy.compress(snapshot);
+                final MappedByteBuffer buf = channel.map(FileChannel.MapMode.READ_WRITE, startOffset, compressed.length);
+                buf.put(compressed);
+            } else {
+                final IntBuffer buf = channel.map(FileChannel.MapMode.READ_WRITE, startOffset, 4 * snapshot.length).asIntBuffer();
+                buf.put(snapshot);
+                // buf.force();
             }
-            // buf.force();
             lastOffset = channel.position();
         } catch (final IOException e) {
             e.printStackTrace();
@@ -105,5 +125,4 @@ public class IntArraySwapFile {
         // save location of snapshot
         locations.put(swapedObjectID, new SnapshotLocationOnDisk(startOffset, lastOffset));
     }
-
 }
