@@ -18,13 +18,6 @@
 
 package org.deidentifier.arx.framework.check.history;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.IntBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -41,7 +34,7 @@ import org.deidentifier.arx.framework.lattice.Node;
  * 
  * @author Prasser, Kohlmayer
  */
-public class HistoryDiskBasedNew implements IHistory {
+public class HistoryDiskBased implements IHistory {
 
     // class NodeToID {
     // final Node node;
@@ -54,55 +47,38 @@ public class HistoryDiskBasedNew implements IHistory {
     // }
     // }
 
-    class SnapshotLocationOnDisk {
-        final long startOffset;
-        final long stopOffset;
-
-        public SnapshotLocationOnDisk(final long startOffset, final long stopOffset) {
-            this.startOffset = startOffset;
-            this.stopOffset = stopOffset;
-        }
-
-    }
+    /** The swap file for the snapshots */
+    private final IntArraySwapFile        swapFile;
 
     /** The actual buffer. */
-    private final MRUCache<Node>                           cache;
-
-    /** The filechannel to which the snapshots are getting persitsted */
-    private FileChannel                                    channel;
+    private final MRUCache<Node>          cache;
 
     /** Current config */
-    private final Configuration                            config;
+    private final Configuration           config;
 
     /** The dictionary for frequencies of the distributions */
-    private final IntArrayDictionary                       dictionarySensFreq;
+    private final IntArrayDictionary      dictionarySensFreq;
 
     // TODO: also the Dictionary should be diskbased!!
     /** The dictionary for values of the distributions */
-    private final IntArrayDictionary                       dictionarySensValue;
-
-    // last offset
-    private long                                           lastOffset = 0;
-
-    // file positions
-    private final HashMap<Integer, SnapshotLocationOnDisk> locations;
+    private final IntArrayDictionary      dictionarySensValue;
 
     /** Maximal number of entries. */
-    private final int                                      maxSize;
+    private final int                     maxSize;
 
     /** A map with all nodes for which snapshots exists. */
-    private HashMap<Node, Integer>                         nodeToID   = null;
+    private HashMap<Node, Integer>        nodeToID = null;
 
     /** A map from snapshotID to snapshots. */
-    private final HashMap<Integer, int[]>                  nodeToSnapshot;
+    private final HashMap<Integer, int[]> nodeToSnapshot;
 
     /** The node backing the last returned snapshot */
-    private Node                                           resultNode;
+    private Node                          resultNode;
     /** The maximal size for a new snapshot. */
-    private final long                                     snapshotSizeDataset;
+    private final long                    snapshotSizeDataset;
 
     /** The minimum required reduction of a snapshot before a new snaphsot is created. */
-    private final double                                   snapshotSizeSnapshot;
+    private final double                  snapshotSizeSnapshot;
 
     /**
      * Creates a new history.
@@ -114,7 +90,7 @@ public class HistoryDiskBasedNew implements IHistory {
      * @param snapshotSizeDataset
      *            the snapshotSizeDataset
      */
-    public HistoryDiskBasedNew(final int rowCount,
+    public HistoryDiskBased(final int rowCount,
                                final int maxSize,
                                final double snapshotSizeDataset,
                                final double snapshotSizeSnapshot,
@@ -127,22 +103,13 @@ public class HistoryDiskBasedNew implements IHistory {
         this.dictionarySensFreq = dictionarySensFreq;
         this.dictionarySensValue = dictionarySensValue;
         this.config = config;
+        this.swapFile = new IntArraySwapFile();
 
         // TODO: fixed size make it configurable!
         this.maxSize = 10;
         nodeToSnapshot = new HashMap<Integer, int[]>();
         cache = new MRUCache<Node>(maxSize);
-        locations = new HashMap<Integer, SnapshotLocationOnDisk>();
-        try {
-            final File temp = File.createTempFile("arxSnapShots", ".tmp", new File("."));
-            temp.deleteOnExit();
-            channel = new RandomAccessFile(temp, "rw").getChannel();
-            channel.truncate(0);
-        } catch (final FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
     /**
@@ -225,12 +192,7 @@ public class HistoryDiskBasedNew implements IHistory {
         nodeToID.clear();
         nodeToSnapshot.clear();
         cache.clear();
-        locations.clear();
-        try {
-            channel.truncate(0);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
+        swapFile.clear();
     }
 
     @Override
@@ -418,8 +380,7 @@ public class HistoryDiskBasedNew implements IHistory {
         if (snapshot != null) {
             return snapshot.length;
         } else {
-            final SnapshotLocationOnDisk loc = locations.get(snapshotNumber);
-            return (int) ((loc.stopOffset - loc.startOffset) / 4);
+            return swapFile.getObjectSize(snapshotNumber);
         }
     }
 
@@ -448,15 +409,7 @@ public class HistoryDiskBasedNew implements IHistory {
     }
 
     private int[] readFromDiskAndCache(final Node node, final Integer snapshotNumber) {
-
-        final SnapshotLocationOnDisk location = locations.get(snapshotNumber);
-        final int[] snapshot = new int[(int) ((location.stopOffset - location.startOffset) / 4)];
-        try {
-            final IntBuffer buf = channel.map(FileChannel.MapMode.READ_ONLY, location.startOffset, 4 * snapshot.length).asIntBuffer();
-            buf.get(snapshot);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
+        int[] snapshot = swapFile.read(snapshotNumber);
 
         // if cache size is to large purge
         if (cache.size() >= maxSize) {
@@ -473,8 +426,8 @@ public class HistoryDiskBasedNew implements IHistory {
         final int[] snapshot = nodeToSnapshot.remove(snapshotID);
 
         // persist snapshots on disk if not already done
-        if (persist & !locations.containsKey(snapshotID)) {
-            storeToDisk(snapshotID, snapshot);
+        if (persist & !swapFile.containsSnapshot(snapshotID)) {
+            swapFile.write(snapshotID, snapshot);
         }
 
         // dictionary entries could not be purged, as they maybe needed, if snapshots were read from disk
@@ -492,21 +445,4 @@ public class HistoryDiskBasedNew implements IHistory {
         // }
     }
 
-    private final void storeToDisk(final Integer snapshotNumber, final int[] snapshot) {
-        final long startOffset = lastOffset;
-        try {
-            final MappedByteBuffer buf = channel.map(FileChannel.MapMode.READ_WRITE, startOffset, 4 * snapshot.length);
-            for (final int j : snapshot) {
-                buf.putInt(j);
-            }
-            // buf.force();
-            lastOffset = channel.position();
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
-
-        // save location of snapshot
-        locations.put(snapshotNumber, new SnapshotLocationOnDisk(startOffset, lastOffset));
-
-    }
 }
