@@ -102,13 +102,14 @@ public class NodeChecker implements INodeChecker {
         case L_DIVERSITY:
         case T_CLOSENESS:
 
-            if (config.isDiskBasedHistory()) {
-                dictionarySensValue = new IntArrayDictionaryDiskBased(initialSize);
-                dictionarySensFreq = new IntArrayDictionaryDiskBased(initialSize);
-            } else {
-                dictionarySensValue = new IntArrayDictionary(initialSize);
-                dictionarySensFreq = new IntArrayDictionary(initialSize);
-            }
+            // TODO: disabled; slow...
+            // if (config.isDiskBasedHistory()) {
+            // dictionarySensValue = new IntArrayDictionaryDiskBased(initialSize);
+            // dictionarySensFreq = new IntArrayDictionaryDiskBased(initialSize);
+            // } else {
+            dictionarySensValue = new IntArrayDictionary(initialSize);
+            dictionarySensFreq = new IntArrayDictionary(initialSize);
+            // }
             break;
 
         default:
