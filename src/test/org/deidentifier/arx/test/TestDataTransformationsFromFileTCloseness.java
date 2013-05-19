@@ -164,7 +164,7 @@ public class TestDataTransformationsFromFileTCloseness extends
                                      Metric.ENTROPY,
                                      390436.40440636495d,
                                      new int[] { 1, 4, 1, 0, 3, 1, 2, 1 },
-                                     true) },
+                                     true) }, //12 -->
                 { new TestCaseResult(0.2,
                                      5,
                                      TClosenessCriterion.EMD_EQUAL,
