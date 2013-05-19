@@ -20,7 +20,7 @@ package org.deidentifier.arx.framework.check;
 
 import org.deidentifier.arx.framework.Configuration;
 import org.deidentifier.arx.framework.check.StateMachine.TransitionType;
-import org.deidentifier.arx.framework.check.distribution.IntArrayDictionary;
+import org.deidentifier.arx.framework.check.distribution.IIntArrayDictionary;
 import org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry;
 import org.deidentifier.arx.framework.check.groupify.IHashGroupify;
 import org.deidentifier.arx.framework.check.transformer.AbstractTransformer;
@@ -66,10 +66,10 @@ public class Transformer {
     /** The instances. */
     protected final AbstractTransformer[]     instances;
     /** The dictionary for the snapshot compression **/
-    protected IntArrayDictionary              dictionarySensValue;
+    protected IIntArrayDictionary              dictionarySensValue;
 
     /** The dictionary for the snapshot compression **/
-    protected IntArrayDictionary              dictionarySensFreq;
+    protected IIntArrayDictionary              dictionarySensFreq;
 
     protected final Configuration             config;
 
@@ -87,8 +87,8 @@ public class Transformer {
                        final GeneralizationHierarchy[] hierarchies,
                        final int[][] sensitiveData,
                        final Configuration config,
-                       final IntArrayDictionary dictionarySensValue,
-                       final IntArrayDictionary dictionarySensFreq) {
+                       final IIntArrayDictionary dictionarySensValue,
+                       final IIntArrayDictionary dictionarySensFreq) {
 
         this.config = config;
         this.data = data;

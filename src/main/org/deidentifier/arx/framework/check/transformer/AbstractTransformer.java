@@ -22,7 +22,7 @@ import java.util.concurrent.Callable;
 
 import org.deidentifier.arx.framework.Configuration;
 import org.deidentifier.arx.framework.check.StateMachine.TransitionType;
-import org.deidentifier.arx.framework.check.distribution.IntArrayDictionary;
+import org.deidentifier.arx.framework.check.distribution.IIntArrayDictionary;
 import org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry;
 import org.deidentifier.arx.framework.check.groupify.IHashGroupify;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
@@ -53,10 +53,10 @@ public abstract class AbstractTransformer implements Callable<IHashGroupify> {
     protected final int[][]                   data;
 
     /** The dictionary for the snapshot compression **/
-    protected final IntArrayDictionary        dictionarySensFreq;
+    protected final IIntArrayDictionary        dictionarySensFreq;
 
     /** The dictionary for the snapshot compression **/
-    protected final IntArrayDictionary        dictionarySensValue;
+    protected final IIntArrayDictionary        dictionarySensValue;
 
     /** The dimensions. */
     protected final int                       dimensions;
@@ -140,8 +140,8 @@ public abstract class AbstractTransformer implements Callable<IHashGroupify> {
     public AbstractTransformer(final int[][] data,
                                final GeneralizationHierarchy[] hierarchies,
                                final int[] sensitiveValues,
-                               final IntArrayDictionary dictionarySensValue,
-                               final IntArrayDictionary dictionarySensFreq,
+                               final IIntArrayDictionary dictionarySensValue,
+                               final IIntArrayDictionary dictionarySensFreq,
                                final Configuration config) {
         this.config = config;
         this.data = data;

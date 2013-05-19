@@ -23,7 +23,7 @@ import java.util.Iterator;
 
 import org.deidentifier.arx.framework.Configuration;
 import org.deidentifier.arx.framework.check.distribution.Distribution;
-import org.deidentifier.arx.framework.check.distribution.IntArrayDictionary;
+import org.deidentifier.arx.framework.check.distribution.IIntArrayDictionary;
 import org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry;
 import org.deidentifier.arx.framework.check.groupify.IHashGroupify;
 import org.deidentifier.arx.framework.lattice.Node;
@@ -51,10 +51,10 @@ public class History implements IHistory {
     private final double             snapshotSizeSnapshot;
 
     /** The dictionary for values of the distributions */
-    private final IntArrayDictionary dictionarySensValue;
+    private final IIntArrayDictionary dictionarySensValue;
 
     /** The dictionary for frequencies of the distributions */
-    private final IntArrayDictionary dictionarySensFreq;
+    private final IIntArrayDictionary dictionarySensFreq;
 
     /** Current config */
     private final Configuration      config;
@@ -77,8 +77,8 @@ public class History implements IHistory {
                    final double snapshotSizeDataset,
                    final double snapshotSizeSnapshot,
                    final Configuration config,
-                   final IntArrayDictionary dictionarySensValue,
-                   final IntArrayDictionary dictionarySensFreq) {
+                   final IIntArrayDictionary dictionarySensValue,
+                   final IIntArrayDictionary dictionarySensFreq) {
         this.snapshotSizeDataset = (long) (rowCount * snapshotSizeDataset);
         this.snapshotSizeSnapshot = snapshotSizeSnapshot;
         cache = new MRUCache<Node>(maxSize);
@@ -251,12 +251,12 @@ public class History implements IHistory {
     }
 
     @Override
-    public IntArrayDictionary getDictionarySensFreq() {
+    public IIntArrayDictionary getDictionarySensFreq() {
         return dictionarySensFreq;
     }
 
     @Override
-    public IntArrayDictionary getDictionarySensValue() {
+    public IIntArrayDictionary getDictionarySensValue() {
         return dictionarySensValue;
     }
 

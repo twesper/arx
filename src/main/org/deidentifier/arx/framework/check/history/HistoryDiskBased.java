@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 
 import org.deidentifier.arx.framework.Configuration;
 import org.deidentifier.arx.framework.check.distribution.Distribution;
-import org.deidentifier.arx.framework.check.distribution.IntArrayDictionary;
+import org.deidentifier.arx.framework.check.distribution.IIntArrayDictionary;
 import org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry;
 import org.deidentifier.arx.framework.check.groupify.IHashGroupify;
 import org.deidentifier.arx.framework.lattice.Node;
@@ -57,11 +57,10 @@ public class HistoryDiskBased implements IHistory {
     private final Configuration           config;
 
     /** The dictionary for frequencies of the distributions */
-    private final IntArrayDictionary      dictionarySensFreq;
+    private final IIntArrayDictionary     dictionarySensFreq;
 
-    // TODO: also the Dictionary should be diskbased!!
     /** The dictionary for values of the distributions */
-    private final IntArrayDictionary      dictionarySensValue;
+    private final IIntArrayDictionary     dictionarySensValue;
 
     /** Maximal number of entries. */
     private final int                     maxSize;
@@ -91,19 +90,19 @@ public class HistoryDiskBased implements IHistory {
      *            the snapshotSizeDataset
      */
     public HistoryDiskBased(final int rowCount,
-                               final int maxSize,
-                               final double snapshotSizeDataset,
-                               final double snapshotSizeSnapshot,
-                               final Configuration config,
-                               final IntArrayDictionary dictionarySensValue,
-                               final IntArrayDictionary dictionarySensFreq) {
+                            final int maxSize,
+                            final double snapshotSizeDataset,
+                            final double snapshotSizeSnapshot,
+                            final Configuration config,
+                            final IIntArrayDictionary dictionarySensValue,
+                            final IIntArrayDictionary dictionarySensFreq) {
         this.snapshotSizeDataset = (long) (rowCount * snapshotSizeDataset);
         this.snapshotSizeSnapshot = snapshotSizeSnapshot;
         nodeToID = new HashMap<Node, Integer>();
         this.dictionarySensFreq = dictionarySensFreq;
         this.dictionarySensValue = dictionarySensValue;
         this.config = config;
-        this.swapFile = new IntArraySwapFile();
+        this.swapFile = new IntArraySwapFile("snapshots");
 
         // TODO: fixed size make it configurable!
         this.maxSize = 10;
@@ -136,6 +135,10 @@ public class HistoryDiskBased implements IHistory {
             if (cNode.getLevel() < node.getLevel()) {
                 final Integer cSnapshotID = pairs.getValue();
                 final int cSnapshotLength = getSnapShotLength(cSnapshotID);
+                if (cSnapshotLength == Integer.MAX_VALUE) {
+                    System.out.println("should never happen!!");
+                }
+
                 if ((rNode == null) || (cSnapshotLength < rDataLength)) {
                     boolean synergetic = true;
                     for (int i = 0; i < cNode.getTransformation().length; i++) {
@@ -165,12 +168,12 @@ public class HistoryDiskBased implements IHistory {
     }
 
     @Override
-    public IntArrayDictionary getDictionarySensFreq() {
+    public IIntArrayDictionary getDictionarySensFreq() {
         return dictionarySensFreq;
     }
 
     @Override
-    public IntArrayDictionary getDictionarySensValue() {
+    public IIntArrayDictionary getDictionarySensValue() {
         return dictionarySensValue;
     }
 
@@ -397,7 +400,8 @@ public class HistoryDiskBased implements IHistory {
             if (canPrune(node)) {
                 purged++;
                 it.remove();
-                removeHistoryEntry(node, false);
+                // TODO: have to store snapshots on disk even in this case, WHY?
+                removeHistoryEntry(node, true);
             }
         }
 

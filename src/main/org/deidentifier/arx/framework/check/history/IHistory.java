@@ -1,6 +1,6 @@
 package org.deidentifier.arx.framework.check.history;
 
-import org.deidentifier.arx.framework.check.distribution.IntArrayDictionary;
+import org.deidentifier.arx.framework.check.distribution.IIntArrayDictionary;
 import org.deidentifier.arx.framework.check.groupify.IHashGroupify;
 import org.deidentifier.arx.framework.lattice.Node;
 
@@ -15,9 +15,9 @@ public interface IHistory {
      */
     public abstract int[] get(Node node);
 
-    public abstract IntArrayDictionary getDictionarySensFreq();
+    public abstract IIntArrayDictionary getDictionarySensFreq();
 
-    public abstract IntArrayDictionary getDictionarySensValue();
+    public abstract IIntArrayDictionary getDictionarySensValue();
 
     /**
      * Returns the node backing the last returned snapshot

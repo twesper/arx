@@ -33,10 +33,10 @@ public class IntArraySwapFile {
 
     private File                                           temp;
 
-    public IntArraySwapFile() {
+    public IntArraySwapFile(String fileNamePrefix) {
         locations = new HashMap<Integer, SnapshotLocationOnDisk>();
         try {
-            temp = File.createTempFile("arxSnapShots", ".tmp", new File("."));
+            temp = File.createTempFile(fileNamePrefix, ".tmp", new File("."));
             temp.deleteOnExit();
             file = new RandomAccessFile(temp, "rw");
             channel = file.getChannel();
@@ -73,11 +73,7 @@ public class IntArraySwapFile {
 
     public int getObjectSize(final Integer swapedObjectID) {
         final SnapshotLocationOnDisk loc = locations.get(swapedObjectID);
-        if (loc == null) {
-            return -1;
-        } else {
-            return (int) ((loc.stopOffset - loc.startOffset) / 4);
-        }
+        return (int) ((loc.stopOffset - loc.startOffset) / 4);
     }
 
     public int[] read(final Integer swapedObjectID) {

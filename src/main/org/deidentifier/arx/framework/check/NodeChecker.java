@@ -20,7 +20,9 @@ package org.deidentifier.arx.framework.check;
 
 import org.deidentifier.arx.framework.Configuration;
 import org.deidentifier.arx.framework.check.StateMachine.Transition;
+import org.deidentifier.arx.framework.check.distribution.IIntArrayDictionary;
 import org.deidentifier.arx.framework.check.distribution.IntArrayDictionary;
+import org.deidentifier.arx.framework.check.distribution.IntArrayDictionaryDiskBased;
 import org.deidentifier.arx.framework.check.groupify.HashGroupify;
 import org.deidentifier.arx.framework.check.groupify.IHashGroupify;
 import org.deidentifier.arx.framework.check.history.History;
@@ -86,8 +88,8 @@ public class NodeChecker implements INodeChecker {
         data = manager.getDataQI();
         final int initialSize = (int) (manager.getDataQI().getDataLength() * 0.01d);
 
-        final IntArrayDictionary dictionarySensValue;
-        final IntArrayDictionary dictionarySensFreq;
+        final IIntArrayDictionary dictionarySensValue;
+        final IIntArrayDictionary dictionarySensFreq;
 
         switch (config.getCriterion()) {
         case K_ANONYMITY:
@@ -99,8 +101,14 @@ public class NodeChecker implements INodeChecker {
 
         case L_DIVERSITY:
         case T_CLOSENESS:
-            dictionarySensValue = new IntArrayDictionary(initialSize);
-            dictionarySensFreq = new IntArrayDictionary(initialSize);
+
+            if (config.isDiskBasedHistory()) {
+                dictionarySensValue = new IntArrayDictionaryDiskBased(initialSize);
+                dictionarySensFreq = new IntArrayDictionaryDiskBased(initialSize);
+            } else {
+                dictionarySensValue = new IntArrayDictionary(initialSize);
+                dictionarySensFreq = new IntArrayDictionary(initialSize);
+            }
             break;
 
         default:

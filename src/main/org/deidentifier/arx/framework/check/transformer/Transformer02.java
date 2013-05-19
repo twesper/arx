@@ -19,7 +19,7 @@
 package org.deidentifier.arx.framework.check.transformer;
 
 import org.deidentifier.arx.framework.Configuration;
-import org.deidentifier.arx.framework.check.distribution.IntArrayDictionary;
+import org.deidentifier.arx.framework.check.distribution.IIntArrayDictionary;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
 
 /**
@@ -40,8 +40,8 @@ public class Transformer02 extends AbstractTransformer {
     public Transformer02(final int[][] data,
                          final GeneralizationHierarchy[] hierarchies,
                          final int[] sensitiveValues,
-                         final IntArrayDictionary dictionarySensValue,
-                         final IntArrayDictionary dictionarySensFreq,
+                         final IIntArrayDictionary dictionarySensValue,
+                         final IIntArrayDictionary dictionarySensFreq,
                          final Configuration config) {
         super(data, hierarchies, sensitiveValues, dictionarySensValue, dictionarySensFreq, config);
     }

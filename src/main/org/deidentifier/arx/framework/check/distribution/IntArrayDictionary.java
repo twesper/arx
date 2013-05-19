@@ -27,7 +27,7 @@ import org.deidentifier.arx.framework.check.groupify.HashTableUtil;
  * 
  * @author Prasser, Kohlmayer
  */
-public class IntArrayDictionary {
+public class IntArrayDictionary implements IIntArrayDictionary {
 
     /**
      * Calculates the MURMUR v3 hashcode
@@ -101,6 +101,7 @@ public class IntArrayDictionary {
     /**
      * Clears the dictionary.
      */
+    @Override
     public void clear() {
         if (elementCount > 0) {
             elementCount = 0;
@@ -139,6 +140,7 @@ public class IntArrayDictionary {
      * 
      * @param element
      */
+    @Override
     public void decrementRefCount(final int index) {
 
         final IntArrayDictionaryEntry entry = list.get(index);
@@ -199,6 +201,7 @@ public class IntArrayDictionary {
      * @param index
      * @return
      */
+    @Override
     public int[] get(final int index) {
         return list.get(index).getKey();
     }
@@ -210,6 +213,7 @@ public class IntArrayDictionary {
      * @param key
      *            the key
      */
+    @Override
     public int probe(final int[] key) {
 
         final int hash = hashCodeMURMUR(key);
@@ -256,6 +260,7 @@ public class IntArrayDictionary {
      * 
      * @return the int
      */
+    @Override
     public int size() {
         return elementCount;
     }
