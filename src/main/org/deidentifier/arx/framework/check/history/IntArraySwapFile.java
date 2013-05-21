@@ -11,7 +11,7 @@ import org.xerial.snappy.Snappy;
 
 public class IntArraySwapFile {
 
-    private static final boolean USE_COMPRESSION = true;
+    private static final boolean USE_COMPRESSION = false;
 
     class SnapshotLocationOnDisk {
         final long startOffset;
