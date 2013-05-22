@@ -23,6 +23,7 @@ import org.deidentifier.arx.framework.check.StateMachine.Transition;
 import org.deidentifier.arx.framework.check.distribution.IIntArrayDictionary;
 import org.deidentifier.arx.framework.check.distribution.IntArrayDictionary;
 import org.deidentifier.arx.framework.check.distribution.IntArrayDictionaryDiskBased;
+import org.deidentifier.arx.framework.check.distribution.IntArrayDictionaryDiskBasedBTree;
 import org.deidentifier.arx.framework.check.groupify.HashGroupify;
 import org.deidentifier.arx.framework.check.groupify.IHashGroupify;
 import org.deidentifier.arx.framework.check.history.History;
@@ -41,7 +42,7 @@ import org.deidentifier.arx.metric.Metric;
 public class NodeChecker implements INodeChecker {
 
     // TODO: quite slow up to now - no caching, compression...
-    private static final boolean USE_DISTRIBUTIONS_DISK_BASED = false;
+    private static final boolean USE_DISTRIBUTIONS_DISK_BASED = true;
 
     /** The current hash groupify. */
     protected IHashGroupify      currentGroupify;
@@ -106,8 +107,8 @@ public class NodeChecker implements INodeChecker {
         case T_CLOSENESS:
 
             if (config.isDiskBasedHistory() && USE_DISTRIBUTIONS_DISK_BASED) {
-                dictionarySensValue = new IntArrayDictionaryDiskBased(initialSize);
-                dictionarySensFreq = new IntArrayDictionaryDiskBased(initialSize);
+                dictionarySensValue = new IntArrayDictionaryDiskBasedBTree(initialSize);
+                dictionarySensFreq = new IntArrayDictionaryDiskBasedBTree(initialSize);
             } else {
                 dictionarySensValue = new IntArrayDictionary(initialSize);
                 dictionarySensFreq = new IntArrayDictionary(initialSize);
