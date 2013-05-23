@@ -43,7 +43,7 @@ public class MemoryUnalignedLongArray implements IMemory{
 	}
 	
 	@Override
-	public int set(int row, int col){
-		return 0;
+	public void set(int row, int col, int val){
+		
 	}
 }
