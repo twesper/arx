@@ -36,14 +36,14 @@ public class MemoryUnalignedLongArray implements IMemory{
 		int index = 0;
 		int offset = 0;
 		for (int i=0; i<fieldSizes.length; i++){
-		    if (offset+fieldSizes.length>64){
+		    if (offset+fieldSizes[i]>64){
 		        offset=0;
 		        index++;
 		    } 
 		    shifts[i] = (byte)(64 - offset - fieldSizes[i]);
             offsets[i] = (byte)index;
             masks[i] = 0xffffffff >>> (64-fieldSizes[i]);
-            offset+=fieldSizes.length;
+            offset+=fieldSizes[i];
 		}
 	}
 	
