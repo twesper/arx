@@ -11,7 +11,9 @@ import org.xerial.snappy.Snappy;
 
 public class IntArraySwapFile {
 
-    private static final boolean USE_COMPRESSION = false;
+    private static final boolean USE_COMPRESSION    = false;
+    private static final boolean MAP_ONCE           = true;
+    private static final boolean MAP_BIGGER_THAN_IS = true;
 
     class SnapshotLocationOnDisk {
         final long startOffset;
@@ -29,12 +31,16 @@ public class IntArraySwapFile {
 
     private RandomAccessFile                               file;
     /** The last offset of the swapfile */
-    private long                                           lastOffset = 0;
+    private long                                           lastOffset        = 0;
 
     /** The map for the offsets for the swapped objects*/
     private final HashMap<Integer, SnapshotLocationOnDisk> locations;
 
     private File                                           temp;
+
+    private IntBuffer                                      staticIntBuf;
+
+    private long                                           currentBufferSize = 0;
 
     public IntArraySwapFile(String fileNamePrefix) {
         locations = new HashMap<Integer, SnapshotLocationOnDisk>();
@@ -94,7 +100,16 @@ public class IntArraySwapFile {
                 snapshot = Snappy.uncompressIntArray(compressed);
             } else {
                 snapshot = new int[(int) ((location.stopOffset - location.startOffset) / 4)];
-                final IntBuffer buf = channel.map(FileChannel.MapMode.READ_ONLY, location.startOffset, 4 * snapshot.length).asIntBuffer();
+
+                IntBuffer buf;
+
+                if (MAP_ONCE) {
+                    buf = staticIntBuf;
+                    buf.position((int) (location.startOffset / 4));
+                } else {
+                    buf = channel.map(FileChannel.MapMode.READ_ONLY, location.startOffset, 4 * snapshot.length).asIntBuffer();
+                }
+
                 buf.get(snapshot);
 
                 // final byte[] buffer = new byte[(int) (location.stopOffset - location.startOffset)];
@@ -132,9 +147,34 @@ public class IntArraySwapFile {
                 file.write(compressed);
                 lastOffset = file.getFilePointer();
             } else {
-                final IntBuffer buf = channel.map(FileChannel.MapMode.READ_WRITE, startOffset, 4 * snapshot.length).asIntBuffer();
+
+                IntBuffer buf;
+
+                if (MAP_ONCE) {
+
+                    if (MAP_BIGGER_THAN_IS) {
+                        final long minLenByte = (lastOffset + (4 * snapshot.length));
+                        if ((staticIntBuf == null) || (currentBufferSize < minLenByte)) {
+                            currentBufferSize = minLenByte + (1024 * 1024);
+                            buf = channel.map(FileChannel.MapMode.READ_WRITE, 0, currentBufferSize).asIntBuffer();
+                            staticIntBuf = buf;
+                        } else {
+                            buf = staticIntBuf;
+                        }
+                    } else {
+                        buf = channel.map(FileChannel.MapMode.READ_WRITE, 0, lastOffset + (4 * snapshot.length)).asIntBuffer();
+                        staticIntBuf = buf;
+                    }
+                    buf.position((int) (startOffset / 4));
+                } else {
+                    buf = channel.map(FileChannel.MapMode.READ_WRITE, startOffset, 4 * snapshot.length).asIntBuffer();
+                }
+
                 buf.put(snapshot);
-                lastOffset = channel.position();
+                // lastOffset = channel.position();
+
+                lastOffset = (buf.position() * 4);
+
                 // file.seek(startOffset);
                 // for (int i : snapshot) {
                 // file.write((byte) (i >> 24));
