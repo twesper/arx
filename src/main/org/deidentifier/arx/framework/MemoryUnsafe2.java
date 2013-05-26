@@ -14,11 +14,14 @@ import sun.misc.Unsafe;
 public class MemoryUnsafe2 implements IMemory {
 
     private final long   address;    // In bytes
-    private final int[]  fieldOffset; // In bytes
+    private final long[] fieldOffset; // In bytes
     private final int[]  fieldSize;  // In bytes
-    private final long    rowSize;    // In bytes
+    private final long   rowSize;    // In bytes
     private final long   size;       // In bytes
     private final Unsafe unsafe;     // The unsafe
+
+    private final long[] masks;
+    private final long[] shifts;
 
     public MemoryUnsafe2(final byte[] fieldSizes, final int numRows) throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 
@@ -29,7 +32,9 @@ public class MemoryUnsafe2 implements IMemory {
 
         // Field properties
         fieldSize = new int[fieldSizes.length];
-        fieldOffset = new int[fieldSizes.length];
+        fieldOffset = new long[fieldSizes.length];
+        shifts = new long[fieldSizes.length];
+        masks = new long[fieldSizes.length];
         int offset = 0;
         int currentLong = 1;
         for (int field = 0; field < fieldSizes.length; field++) {
@@ -73,7 +78,7 @@ public class MemoryUnsafe2 implements IMemory {
 
     @Override
     public int get(final int row, final int col) {
-        final long base = address + (row * rowSize) + fieldOffset[col];
+        final long base = address + ((long)row * rowSize) + fieldOffset[col];
 
         // unsafe.putAddress(allocateMemory, value);
 
@@ -122,7 +127,7 @@ public class MemoryUnsafe2 implements IMemory {
 
     @Override
     public void set(final int row, final int col, final int val) {
-        final long base = address + (row * rowSize) + fieldOffset[col];
+        final long base = address + ((long)row * rowSize) + fieldOffset[col];
         switch (fieldSize[col]) {
         case 1:
             unsafe.putByte(base, (byte) val);
