@@ -163,6 +163,8 @@ public class HistoryDiskBased implements IHistory {
         int[] rData = nodeToSnapshot.get(rsnapshotID);
         if (rData == null) {
             rData = readFromDiskAndCache(rNode, rsnapshotID);
+        } else {
+            cache.touch(rNode);
         }
         return rData;
     }
