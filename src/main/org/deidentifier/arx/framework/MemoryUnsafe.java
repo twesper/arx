@@ -37,6 +37,7 @@ public class MemoryUnsafe {
         this.fieldSize = new int[fieldSizes.length];
         this.fieldOffset = new long[fieldSizes.length];
         int offset = 0;
+        int index = 1;
         for (int field = 0; field < fieldSizes.length; field++) {
             int size = fieldSizes[field];
             if (size <= 8) { // Byte
@@ -48,7 +49,13 @@ public class MemoryUnsafe {
             } else {
                 throw new RuntimeException("Unexpected field size: " + size);
             }
-            // TODO: Might be unaligned and cross word boundaries
+
+            // If it doesn't fit in current long, align
+            if ((offset + size) > (index * 64)) {
+                offset += ((index * 64) - offset);
+                index++;
+            }
+            
             this.fieldOffset[field] = offset;
             offset += this.fieldSize[field];
         }
@@ -64,7 +71,7 @@ public class MemoryUnsafe {
     public boolean equals(MemoryUnsafe other) {
     	switch (rowSizeInLongs){
     	case 4:
-    		if (this.unsafe.getLong(base+32) != other.unsafe.getLong(base+32)) return false;
+    		if (this.unsafe.getLong(base+24) != other.unsafe.getLong(base+32)) return false;
     	case 3:
     		if (this.unsafe.getLong(base+16) != other.unsafe.getLong(base+16)) return false;
     	case 2:
@@ -78,24 +85,26 @@ public class MemoryUnsafe {
     }
 
     public int hashcode() {
-    	
-    	// TODO: Good idea to convert long hashcode to int?
-    	// Compute long hashcode
-        long lHashcode = 23;
+
+        int hashcode = 1;
+        long element = 0;
     	switch (rowSizeInLongs){
     	case 4:
-    		lHashcode = (37 * lHashcode) + unsafe.getLong(base+32);
+    		element = unsafe.getLong(base+24);
+    		hashcode = 31 * hashcode + (int)(element ^ (element >>> 32));
     	case 3:
-    		lHashcode = (37 * lHashcode) + unsafe.getLong(base+16);
+    		element = unsafe.getLong(base+16);
+    		hashcode = 31 * hashcode + (int)(element ^ (element >>> 32));
     	case 2:
-    		lHashcode = (37 * lHashcode) + unsafe.getLong(base+8);
+    		element = unsafe.getLong(base+8);
+    		hashcode = 31 * hashcode + (int)(element ^ (element >>> 32));
     	case 1:
-    		lHashcode = (37 * lHashcode) + unsafe.getLong(base);
+    		element = unsafe.getLong(base);
+    		hashcode = 31 * hashcode + (int)(element ^ (element >>> 32));
     		break;
     	default: throw new RuntimeException("Invalid bytes per row!");
     	}
-        // Convert to int hashcode
-        return (int)(lHashcode >>> 32) ^ (int)(lHashcode & 0x0000ffff);
+        return hashcode;
     }
 
     public int get(int col) {
