@@ -11,14 +11,17 @@ import sun.misc.Unsafe;
  *  
  * @author Prasser, Kohlmayer
  */
-public class MemoryUnsafe implements IMemory {
+public class MemoryUnsafe {
 
-    private Unsafe unsafe;     // The unsafe
-    private long   address;    // In bytes
-    private long   size;       // In bytes
-    private int[]  fieldSize;  // In bytes
-    private int[]  fieldOffset;// In bytes
-    private int    rowSize;    // In bytes
+    private final Unsafe  unsafe;     // The unsafe
+    private final long    address;    // In bytes
+    private final long    size;       // In bytes
+    private final int[]   fieldSize;  // In bytes
+    private final long[]  fieldOffset;// In bytes
+    public  final long    rowSize;    // In bytes
+    public  final int     rowSizeInLongs; // In longs
+    
+    public long     base;       // In bytes
 
     public MemoryUnsafe(byte[] fieldSizes, int numRows) throws SecurityException,
                                                        NoSuchFieldException,
@@ -32,7 +35,7 @@ public class MemoryUnsafe implements IMemory {
 
         // Field properties
         this.fieldSize = new int[fieldSizes.length];
-        this.fieldOffset = new int[fieldSizes.length];
+        this.fieldOffset = new long[fieldSizes.length];
         int offset = 0;
         for (int field = 0; field < fieldSizes.length; field++) {
             int size = fieldSizes[field];
@@ -50,69 +53,88 @@ public class MemoryUnsafe implements IMemory {
             offset += this.fieldSize[field];
         }
         this.rowSize = (int) Math.ceil((double) offset / (double) 8) * 8;
+        this.rowSizeInLongs = (int)(rowSize / 8);
 
         // Allocate
         this.size = rowSize * numRows;
         this.address = this.unsafe.allocateMemory(size);
+        this.resetRow();
     }
 
-    @Override
-    public boolean equals(IMemory other, int row) {
-        // TODO: Potentially expensive cast here
-        long startAdress = address + row * rowSize;
-        long endAdress = startAdress + rowSize;
-        for (long base = startAdress; base < endAdress; base += 8) {
-            if (this.unsafe.getLong(base) != ((MemoryUnsafe) other).unsafe.getLong(base)) return false;
-        }
+    public boolean equals(MemoryUnsafe other) {
+    	switch (rowSizeInLongs){
+    	case 4:
+    		if (this.unsafe.getLong(base+32) != other.unsafe.getLong(base+32)) return false;
+    	case 3:
+    		if (this.unsafe.getLong(base+16) != other.unsafe.getLong(base+16)) return false;
+    	case 2:
+    		if (this.unsafe.getLong(base+8) != other.unsafe.getLong(base+8)) return false;
+    	case 1:
+    		if (this.unsafe.getLong(base) != other.unsafe.getLong(base)) return false;
+    		break;
+    	default: throw new RuntimeException("Invalid bytes per row!");
+    	}
         return true;
     }
 
-    @Override
-    public int hashcode(int row) {
-        int result = 23;
-        long startAdress = address + row * rowSize;
-        long endAdress = startAdress + rowSize;
-        for (long base = startAdress; base < endAdress; base += 8) {
-            result = (37 * result) + unsafe.getInt(base);
-            result = (37 * result) + unsafe.getInt(base + 4);
-        }
-        return result;
+    public int hashcode() {
+    	
+    	// TODO: Good idea to convert long hashcode to int?
+    	// Compute long hashcode
+        long lHashcode = 23;
+    	switch (rowSizeInLongs){
+    	case 4:
+    		lHashcode = (37 * lHashcode) + unsafe.getLong(base+32);
+    	case 3:
+    		lHashcode = (37 * lHashcode) + unsafe.getLong(base+16);
+    	case 2:
+    		lHashcode = (37 * lHashcode) + unsafe.getLong(base+8);
+    	case 1:
+    		lHashcode = (37 * lHashcode) + unsafe.getLong(base);
+    		break;
+    	default: throw new RuntimeException("Invalid bytes per row!");
+    	}
+        // Convert to int hashcode
+        return (int)(lHashcode >>> 32) ^ (int)(lHashcode & 0x0000ffff);
     }
 
-    @Override
-    public int get(int row, int col) {
-        long base = address + row * rowSize + fieldOffset[col];
-        switch (fieldSize[col]) {
+    public int get(int col) {
+    	switch (fieldSize[col]) {
         case 1:
-            return this.unsafe.getByte(base);
+            return this.unsafe.getByte(base + fieldOffset[col]);
         case 2:
-            return this.unsafe.getChar(base);
+            return this.unsafe.getChar(base + fieldOffset[col]);
         case 4:
-            return this.unsafe.getInt(base);
+            return this.unsafe.getInt(base + fieldOffset[col]);
         default:
             throw new RuntimeException("Invalid field size!");
         }
     }
+    
+    public void setRow(long row){
+    	this.base = address + row * rowSize;
+    }
+    
+    public void resetRow(){
+    	this.base = address;
+    }
 
-    @Override
-    public void set(int row, int col, int val) {
-        long base = address + row * rowSize + fieldOffset[col];
+    public void set(int col, int val) {
         switch (fieldSize[col]) {
         case 1: 
-            this.unsafe.putByte(base, (byte)val); 
+            this.unsafe.putByte(base + fieldOffset[col], (byte)val); 
             break;
         case 2:
-            this.unsafe.putChar(base, (char)val); 
+            this.unsafe.putChar(base + fieldOffset[col], (char)val); 
             break;
         case 4:
-            this.unsafe.putInt(base, (int)val); 
+            this.unsafe.putInt(base + fieldOffset[col], val); 
             break;
         default:
             throw new RuntimeException("Invalid field size!");
         }
     }
 
-    @Override
     public long getByteSize() {
         return size;
     }
