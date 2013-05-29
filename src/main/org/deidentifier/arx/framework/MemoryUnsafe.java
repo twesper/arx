@@ -71,7 +71,7 @@ public class MemoryUnsafe {
     public boolean equals(MemoryUnsafe other) {
     	switch (rowSizeInLongs){
     	case 4:
-    		if (this.unsafe.getLong(base+24) != other.unsafe.getLong(base+32)) return false;
+    		if (this.unsafe.getLong(base+24) != other.unsafe.getLong(base+24)) return false;
     	case 3:
     		if (this.unsafe.getLong(base+16) != other.unsafe.getLong(base+16)) return false;
     	case 2:
