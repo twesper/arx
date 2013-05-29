@@ -26,14 +26,15 @@ public class MemoryBenchmark {
             for (int col=0; col<sizes.length; col++){
                 int0.set(row, col, data[row][col]);
                 long0.set(row, col, data[row][col]);
-                unsafe0.set(row, col, data[row][col]);
+                unsafe0.set(col, data[row][col]);
                 if (int0.get(row,col)!=long0.get(row, col)) {
                     throw new RuntimeException("Mismatch!");
                 }
-                if (int0.get(row,col)!=unsafe0.get(row, col)) {
+                if (int0.get(row,col)!=unsafe0.get(col)) {
                     throw new RuntimeException("Mismatch!");
                 }
             }
+            unsafe0.base += unsafe0.rowSize;
         }
         
         System.out.println("Everything works. Starting benchmark!");
@@ -172,10 +173,12 @@ public class MemoryBenchmark {
         
         // Write
         for (int i=0; i<repeats; i++){
+        	m1.resetRow();
             for (int row=0; row<100000; row++){
                 for (int col=0; col<sizes.length; col++){
-                    m1.set(row, col, data[row][col]);
+                    m1.set(col, data[row][col]);
                 }
+                m1.base += m1.rowSize;
             }
         }
         
@@ -183,10 +186,14 @@ public class MemoryBenchmark {
         
         // Copy
         for (int i=0; i<repeats; i++){
+        	m1.resetRow();
+        	m2.resetRow();
             for (int row=0; row<100000; row++){
                 for (int col=0; col<sizes.length; col++){
-                    m2.set(row, col, m1.get(row, col));
+                    m2.set(col, m1.get(col));
                 }
+                m1.base += m1.rowSize;
+                m2.base += m2.rowSize;
             }
         }
         
@@ -194,8 +201,12 @@ public class MemoryBenchmark {
         
         // Compare
         for (int i=0; i<repeats; i++){
+        	m1.resetRow();
+        	m2.resetRow();
             for (int row=0; row<100000; row++){
-                equal = m1.equals(m2, row);
+                equal = m1.equals(m2);
+                m1.base += m1.rowSize;
+                m2.base += m2.rowSize;
             }
         }
         
@@ -203,8 +214,10 @@ public class MemoryBenchmark {
 
         // Hashcode
         for (int i=0; i<repeats; i++){
+        	m1.resetRow();
             for (int row=0; row<100000; row++){
-                code = m1.hashcode(row);
+                code = m1.hashcode();
+                m1.base += m1.rowSize;
             }
         }
         
