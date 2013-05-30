@@ -19,6 +19,7 @@ public class Memory  {
     private final long   size;            // Total size in bytes
     private final int    length;          // Length in rows
     private final int    width;           // Length in cols
+    private boolean      freed = false;
 
     public Memory(int rows, int cols) {
         
@@ -118,6 +119,7 @@ public class Memory  {
 
     public void free() {
         unsafe.freeMemory(baseAddress);
+        freed = true;
     }
 
     public int getLength() {
@@ -160,5 +162,12 @@ public class Memory  {
             unsafe.putAddress(address, temp[index]);
             index++;
         }
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+        // TODO: The call to free() should be required explicitly,
+        // as there is no guarantee that finalize will be called!
+        if (!freed) free();
     }
 }
