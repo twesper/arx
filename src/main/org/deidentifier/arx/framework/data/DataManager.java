@@ -105,6 +105,10 @@ public class DataManager {
      * @param insensitiveAttributes
      * @param identifiers
      * @param strictMode
+     * @throws IllegalAccessException 
+     * @throws NoSuchFieldException 
+     * @throws IllegalArgumentException 
+     * @throws SecurityException 
      */
     public DataManager(final String[] header,
                        final int[][] data,
@@ -257,6 +261,10 @@ public class DataManager {
      * @param headerSE
      * @param headerIS
      * @return
+     * @throws IllegalAccessException 
+     * @throws NoSuchFieldException 
+     * @throws IllegalArgumentException 
+     * @throws SecurityException 
      */
     private Data[] encode(final int[][] data,
                           final int[] map,
@@ -271,30 +279,22 @@ public class DataManager {
                           final String[] headerIS) {
 
         // Parse the dataset
-        final int[][] valsQI = new int[data.length][];
-        final int[][] valsSE = new int[data.length][];
-        final int[][] valsIS = new int[data.length][];
+        final Memory valsQI = new Memory(data.length, headerQI.length);
+        final Memory valsSE = new Memory(data.length, headerSE.length);
+        final Memory valsIS = new Memory(data.length, headerIS.length);
 
         int index = 0;
         for (final int[] tuple : data) {
 
-            // Process a tuple
-            final int[] tupleQI = new int[headerQI.length];
-            final int[] tupleSE = new int[headerSE.length];
-            final int[] tupleIS = new int[headerIS.length];
-
             for (int i = 0; i < tuple.length; i++) {
                 if (map[i] >= 1000) {
-                    tupleIS[map[i] - 1000] = tuple[i];
+                    valsIS.set(index, map[i] - 1000, tuple[i]);
                 } else if (map[i] > 0) {
-                    tupleQI[map[i] - 1] = tuple[i];
+                    valsQI.set(index, map[i] - 1, tuple[i]);
                 } else if (map[i] < 0) {
-                    tupleSE[-map[i] - 1] = tuple[i];
+                    valsSE.set(index, -map[i] - 1, tuple[i]);
                 }
             }
-            valsQI[index] = tupleQI;
-            valsIS[index] = tupleIS;
-            valsSE[index] = tupleSE;
             index++;
         }
 
@@ -340,19 +340,19 @@ public class DataManager {
     public double[] getDistribution() {
 
         final int distinct = dataSE.getDictionary().getMapping()[0].length;
-        final int[][] data = dataSE.getArray();
+        final Memory data = dataSE.getMemory();
 
         // Initialize counts
         final int[] cardinalities = new int[distinct];
-        for (int i = 0; i < data.length; i++) { // iterate over all rows
-            cardinalities[data[i][0]]++;
+        for (int i = 0; i < data.getLength(); i++) { // iterate over all rows
+            cardinalities[data.get(i,0)]++;
         }
 
         // compute distribution
         final double[] distribution = new double[cardinalities.length];
         for (int i = 0; i < distribution.length; i++) {
             distribution[i] = ((double) cardinalities[i]) /
-                              ((double) data.length);
+                              ((double) data.getLength());
         }
         return distribution;
     }
@@ -411,9 +411,9 @@ public class DataManager {
      */
     public int[] getTree() {
 
-        final int[][] data = dataSE.getArray();
+        final Memory data = dataSE.getMemory();
         final int[][] hierarchy = hierarchiesSE[0].map;
-        final int totalElementsP = data.length;
+        final int totalElementsP = data.getLength();
         final int height = hierarchy[0].length - 1;
         final int numLeafs = hierarchy.length;
 
@@ -430,10 +430,10 @@ public class DataManager {
 
         // count frequnecies
         final int offsetLeafs = 3;
-        for (int i = 0; i < data.length; i++) {
-            int previousFreq = treeList.get(data[i][0] + offsetLeafs);
+        for (int i = 0; i < data.getLength(); i++) {
+            int previousFreq = treeList.get(data.get(i,0) + offsetLeafs);
             previousFreq++;
-            treeList.set(data[i][0] + offsetLeafs, previousFreq);
+            treeList.set(data.get(i,0) + offsetLeafs, previousFreq);
 
         }
 

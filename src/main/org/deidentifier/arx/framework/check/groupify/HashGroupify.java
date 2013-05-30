@@ -23,6 +23,7 @@ import org.deidentifier.arx.framework.BitSetCompressed;
 import org.deidentifier.arx.framework.Configuration;
 import org.deidentifier.arx.framework.check.distribution.Distribution;
 import org.deidentifier.arx.framework.data.Data;
+import org.deidentifier.arx.framework.data.Memory;
 
 /**
  * A hash groupify operator.
@@ -91,6 +92,9 @@ public class HashGroupify implements IHashGroupify {
 
     /** d-presence */
     private final double           dMax;
+    
+    /** The memory*/
+    private final Memory       memory;
 
     /**
      * Constructs a new hash groupify for kanonK anonymity.
@@ -100,21 +104,22 @@ public class HashGroupify implements IHashGroupify {
      * @param config
      *            the config
      */
-    public HashGroupify(int capacity, final Configuration config) {
+    public HashGroupify(Memory memory, int capacity, final Configuration config) {
 
         // Set capacity
         capacity = HashTableUtil.calculateCapacity(capacity);
-        elementCount = 0;
-        buckets = new HashGroupifyEntry[capacity];
-        threshold = HashTableUtil.calculateThreshold(buckets.length, loadFactor);
+        this.elementCount = 0;
+        this.buckets = new HashGroupifyEntry[capacity];
+        this.threshold = HashTableUtil.calculateThreshold(buckets.length, loadFactor);
+        this.memory = memory;
 
         this.config = config;
-        currentOutliers = 0;
-        absoluteMaxOutliers = config.getAbsoluteMaxOutliers();
-        ldivC = config.getC();
-        tcloseT = config.getT();
-        dMax = config.getDmax();
-        dMin = config.getDmin();
+        this.currentOutliers = 0;
+        this.absoluteMaxOutliers = config.getAbsoluteMaxOutliers();
+        this.ldivC = config.getC();
+        this.tcloseT = config.getT();
+        this.dMax = config.getDmax();
+        this.dMin = config.getDmin();
 
         // Set params
         switch (config.getCriterion()) {
@@ -185,9 +190,9 @@ public class HashGroupify implements IHashGroupify {
      * int, int)
      */
     @Override
-    public void add(final int[] key, final int line, final int value) {
-        final int hash = HashTableUtil.hashcode(key);
-        addInternal(key, line, value, hash, 0);
+    public void add(final int line, final int value) {
+        final int hash = memory.hashCode(line);
+        addInternal(line, value, hash, 0);
     }
 
     /*
@@ -196,12 +201,12 @@ public class HashGroupify implements IHashGroupify {
      * @see org.deidentifier.ARX.framework.check.groupify.IHashGroupify#addD(int[], int, int, int)
      */
     @Override
-    public void addD(final int[] key, final int line, final int value, final int pvalue) {
-        final int hash = HashTableUtil.hashcode(key);
+    public void addD(final int line, final int value, final int pvalue) {
+        final int hash = memory.hashCode(line);
         if (researchSubset.get(line)) {
-            addInternal(key, line, value, hash, pvalue);
+            addInternal(line, value, hash, pvalue);
         } else {
-            addInternal(key, line, 0, hash, pvalue);
+            addInternal(line, 0, hash, pvalue);
         }
     }
 
@@ -214,9 +219,9 @@ public class HashGroupify implements IHashGroupify {
      * org.deidentifier.ARX.framework.check.distribution.Distribution)
      */
     @Override
-    public void add(final int[] key, final int line, final int value, final Distribution frequencySet) {
-        final int hash = HashTableUtil.hashcode(key);
-        final HashGroupifyEntry entry = addInternal(key, line, value, hash, 0);
+    public void add(final int line, final int value, final Distribution frequencySet) {
+        final int hash = memory.hashCode(line);
+        final HashGroupifyEntry entry = addInternal(line, value, hash, 0);
         if (entry.distribution == null) {
             entry.distribution = frequencySet;
         } else {
@@ -232,9 +237,9 @@ public class HashGroupify implements IHashGroupify {
      * int, int, int)
      */
     @Override
-    public void add(final int[] key, final int line, final int value, final int sensitiveValue) {
-        final int hash = HashTableUtil.hashcode(key);
-        final HashGroupifyEntry entry = addInternal(key, line, value, hash, 0);
+    public void add(final int line, final int value, final int sensitiveValue) {
+        final int hash = memory.hashCode(line);
+        final HashGroupifyEntry entry = addInternal(line, value, hash, 0);
         if (entry.distribution == null) {
             entry.distribution = new Distribution();
         }
@@ -249,9 +254,9 @@ public class HashGroupify implements IHashGroupify {
      * int, int, int[], int[])
      */
     @Override
-    public void add(final int[] key, final int line, final int value, final int[] sensitiveElements, final int[] sensitiveFrequencies) {
-        final int hash = HashTableUtil.hashcode(key);
-        final HashGroupifyEntry entry = addInternal(key, line, value, hash, 0);
+    public void add(final int line, final int value, final int[] sensitiveElements, final int[] sensitiveFrequencies) {
+        final int hash = memory.hashCode(line);
+        final HashGroupifyEntry entry = addInternal(line, value, hash, 0);
         if (entry.distribution == null) {
             entry.distribution = new Distribution(sensitiveElements, sensitiveFrequencies);
         } else {
@@ -272,17 +277,17 @@ public class HashGroupify implements IHashGroupify {
      *            the hash
      * @return the hash groupify entry
      */
-    private final HashGroupifyEntry addInternal(final int[] key, final int line, final int value, final int hash, final int pvalue) {
+    private final HashGroupifyEntry addInternal(final int line, final int value, final int hash, final int pvalue) {
 
         // Add entry
         int index = hash & (buckets.length - 1);
-        HashGroupifyEntry entry = findEntry(key, index, hash);
+        HashGroupifyEntry entry = findEntry(line, index, hash);
         if (entry == null) {
             if (++elementCount > threshold) {
                 rehash();
                 index = hash & (buckets.length - 1);
             }
-            entry = createEntry(key, index, hash, line);
+            entry = createEntry(index, hash, line);
         }
         entry.count += value;
 
@@ -338,10 +343,9 @@ public class HashGroupify implements IHashGroupify {
      *            the line
      * @return the hash groupify entry
      */
-    private HashGroupifyEntry createEntry(final int[] key, final int index, final int hash, final int line) {
-        final HashGroupifyEntry entry = new HashGroupifyEntry(key, hash);
+    private HashGroupifyEntry createEntry(final int index, final int hash, final int line) {
+        final HashGroupifyEntry entry = new HashGroupifyEntry(line, hash);
         entry.next = buckets[index];
-        entry.representant = line;
         buckets[index] = entry;
         if (firstEntry == null) {
             firstEntry = entry;
@@ -351,20 +355,6 @@ public class HashGroupify implements IHashGroupify {
             lastEntry = entry;
         }
         return entry;
-    }
-
-    /**
-     * TODO: Ugly!
-     * 
-     * @param a
-     * @param a2
-     * @return
-     */
-    private boolean equalsIgnoringOutliers(final int[] a, final int[] a2) {
-        for (int i = 0; i < a.length; i++) {
-            if (a[i] != (a2[i] & Data.REMOVE_OUTLIER_MASK)) { return false; }
-        }
-        return true;
     }
 
     /**
@@ -378,9 +368,9 @@ public class HashGroupify implements IHashGroupify {
      *            the key hash
      * @return the hash groupify entry
      */
-    private final HashGroupifyEntry findEntry(final int[] key, final int index, final int keyHash) {
+    private final HashGroupifyEntry findEntry(final int line, final int index, final int keyHash) {
         HashGroupifyEntry m = buckets[index];
-        while ((m != null) && ((m.hashcode != keyHash) || !HashTableUtil.equals(key, m.key))) {
+        while ((m != null) && ((m.hashcode != keyHash) || !memory.equals(line, m.representant))) {
             m = m.next;
         }
         return m;
@@ -524,18 +514,17 @@ public class HashGroupify implements IHashGroupify {
     }
 
     @Override
-    public void markOutliers(final int[][] data) {
-        for (int row = 0; row < data.length; row++) {
-            final int[] key = data[row];
-            final int hash = HashTableUtil.hashcode(key);
+    public void markOutliers(final Memory data) {
+        for (int row = 0; row < data.getLength(); row++) {
+            final int hash = data.hashCode(row);
             final int index = hash & (buckets.length - 1);
             HashGroupifyEntry m = buckets[index];
-            while ((m != null) && ((m.hashcode != hash) || !equalsIgnoringOutliers(key, m.key))) {
+            while ((m != null) && ((m.hashcode != hash) || !data.equalsIgnoreOutliers(row, m.representant))) {
                 m = m.next;
             }
             if (m == null) { throw new RuntimeException("Invalid state! Groupify the data before marking outliers!"); }
             if (!m.isNotOutlier) {
-                key[0] |= Data.OUTLIER_MASK;
+                data.set(row, 0, (data.get(row, 0) | Data.OUTLIER_MASK));
             }
         }
     }

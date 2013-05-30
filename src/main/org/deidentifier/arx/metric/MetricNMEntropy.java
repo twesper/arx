@@ -24,6 +24,7 @@ import java.util.Map;
 import org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry;
 import org.deidentifier.arx.framework.check.groupify.IHashGroupify;
 import org.deidentifier.arx.framework.data.Data;
+import org.deidentifier.arx.framework.data.Memory;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
 import org.deidentifier.arx.framework.lattice.Node;
 
@@ -41,10 +42,9 @@ import org.deidentifier.arx.framework.lattice.Node;
  */
 public class MetricNMEntropy extends MetricEntropy {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 5789738609326541247L;
+    
+    private Memory memory;
 
     public MetricNMEntropy() {
         super(false, false);
@@ -76,7 +76,7 @@ public class MetricNMEntropy extends MetricEntropy {
             if (!m.isNotOutlier) {
                 suppressedTuples += m.count;
                 for (int i = 0; i < original.length; i++) {
-                    key = m.key[i];
+                    key = memory.get(m.representant, i);
                     val = original[i].get(key);
                     if (val == null) {
                         original[i].put(key, m.count);
@@ -106,5 +106,6 @@ public class MetricNMEntropy extends MetricEntropy {
             initializeInternal(final Data input,
                                final GeneralizationHierarchy[] ahierarchies) {
         super.initializeInternal(input, ahierarchies);
+        this.memory = input.getMemory();
     }
 }

@@ -33,8 +33,11 @@ public class Data {
     /** The inverse outliers mask */
     public static final int  REMOVE_OUTLIER_MASK = ~OUTLIER_MASK;
 
+    /** The inverse outliers mask */
+    public static final long  REMOVE_OUTLIER_LONG_MASK = (REMOVE_OUTLIER_MASK << 32) | REMOVE_OUTLIER_MASK;
+
     /** Row, Dimension. */
-    private final int[][]    data;
+    private final Memory    data;
 
     /** The header */
     private final String[]   header;
@@ -57,7 +60,7 @@ public class Data {
      * @param dictionary
      *            The dictionary
      */
-    public Data(final int[][] data,
+    public Data(final Memory data,
                 final String[] header,
                 final int[] map,
                 final Dictionary dictionary) {
@@ -72,16 +75,7 @@ public class Data {
      * 
      * @return
      */
-    public int[][] getArray() {
-        return data;
-    }
-
-    /**
-     * Returns the data
-     * 
-     * @return
-     */
-    public int[][] getData() {
+    public Memory getMemory() {
         return data;
     }
 
@@ -91,7 +85,7 @@ public class Data {
      * @return the data length
      */
     public int getDataLength() {
-        return data.length;
+        return data.getLength();
     }
 
     /**

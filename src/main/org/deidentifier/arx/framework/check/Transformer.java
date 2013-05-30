@@ -40,6 +40,7 @@ import org.deidentifier.arx.framework.check.transformer.Transformer13;
 import org.deidentifier.arx.framework.check.transformer.Transformer14;
 import org.deidentifier.arx.framework.check.transformer.Transformer15;
 import org.deidentifier.arx.framework.check.transformer.TransformerAll;
+import org.deidentifier.arx.framework.data.Memory;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
 
 /**
@@ -50,10 +51,10 @@ import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
 public class Transformer {
 
     /** The buffer. */
-    protected int[][]                         buffer;
+    protected Memory                      buffer;
 
     /** The data. */
-    protected final int[][]                   data;
+    protected final Memory                data;
 
     protected int[]                           sensitiveValues;
 
@@ -83,9 +84,9 @@ public class Transformer {
      * @param dictionarySensValue
      * @param dictionarySensFreq
      */
-    public Transformer(final int[][] data,
+    public Transformer(final Memory data,
                        final GeneralizationHierarchy[] hierarchies,
-                       final int[][] sensitiveData,
+                       final Memory sensitiveData,
                        final Configuration config,
                        final IntArrayDictionary dictionarySensValue,
                        final IntArrayDictionary dictionarySensFreq) {
@@ -95,24 +96,21 @@ public class Transformer {
         this.hierarchies = hierarchies;
         instances = new AbstractTransformer[16];
         // init buffer
-        buffer = new int[data.length][];
-        for (int i = 0; i < data.length; i++) {
-            buffer[i] = new int[data[0].length];
-        }
+        buffer = new Memory(data.getLength(), data.getWidth());
+        dimensions = data.getWidth();
 
-        dimensions = data[0].length;
-
-        sensitiveValues = new int[data.length];
+        // TODO: Why is there a copy of the sensitive values?
+        sensitiveValues = new int[data.getLength()];
         this.dictionarySensValue = dictionarySensValue;
         this.dictionarySensFreq = dictionarySensFreq;
 
-        if ((sensitiveData != null) && (sensitiveData.length == data.length) &&
-            (sensitiveData[0].length > 0)) {
+        if ((sensitiveData != null) && (sensitiveData.getLength() == data.getLength()) &&
+            (sensitiveData.getWidth() > 0)) {
             for (int i = 0; i < sensitiveValues.length; i++) { // BEWARE: only
                                                                // the first
                                                                // sensitive
                                                                // value is used
-                sensitiveValues[i] = sensitiveData[i][0];
+                sensitiveValues[i] = sensitiveData.get(i,0);
             }
         }
 
@@ -175,7 +173,7 @@ public class Transformer {
         switch (transition) {
         case UNOPTIMIZED:
             startIndex = 0;
-            stopIndex = data.length;
+            stopIndex = data.getLength();
             break;
         case ROLLUP:
             startIndex = 0;
@@ -263,24 +261,6 @@ public class Transformer {
      * Builds the applicators.
      */
     private void buildApplicators() {
-        instances[15] = new Transformer15(data,
-                                          hierarchies,
-                                          sensitiveValues,
-                                          dictionarySensValue,
-                                          dictionarySensFreq,
-                                          config);
-        instances[14] = new Transformer14(data,
-                                          hierarchies,
-                                          sensitiveValues,
-                                          dictionarySensValue,
-                                          dictionarySensFreq,
-                                          config);
-        instances[13] = new Transformer13(data,
-                                          hierarchies,
-                                          sensitiveValues,
-                                          dictionarySensValue,
-                                          dictionarySensFreq,
-                                          config);
         instances[12] = new Transformer12(data,
                                           hierarchies,
                                           sensitiveValues,
@@ -382,7 +362,7 @@ public class Transformer {
      * 
      * @return the buffer
      */
-    public int[][] getBuffer() {
+    public Memory getBuffer() {
         return buffer;
     }
 }

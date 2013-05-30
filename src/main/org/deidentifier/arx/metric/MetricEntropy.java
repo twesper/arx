@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.deidentifier.arx.framework.check.groupify.IHashGroupify;
 import org.deidentifier.arx.framework.data.Data;
 import org.deidentifier.arx.framework.data.Dictionary;
+import org.deidentifier.arx.framework.data.Memory;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
 import org.deidentifier.arx.framework.lattice.Node;
 
@@ -114,23 +115,22 @@ public class MetricEntropy extends MetricDefault {
         final Dictionary dictionary = input.getDictionary();
 
         // Create reference to the hierarchies
-        final int[][] data = input.getArray();
-        hierarchies = new int[data[0].length][][];
+        final Memory data = input.getMemory();
+        hierarchies = new int[data.getWidth()][][];
         for (int i = 0; i < ahierarchies.length; i++) {
             hierarchies[i] = ahierarchies[i].getArray();
             // Column -> Id -> Level -> Output
         }
 
         // Initialize counts
-        cardinalities = new int[data[0].length][][];
+        cardinalities = new int[data.getWidth()][][];
         for (int i = 0; i < cardinalities.length; i++) {
             cardinalities[i] = new int[dictionary.getMapping()[i].length][ahierarchies[i].getArray()[0].length];
             // Column -> Id -> Level -> Count
         }
-        for (int i = 0; i < data.length; i++) {
-            final int[] row = data[i];
-            for (int column = 0; column < row.length; column++) {
-                cardinalities[column][row[column]][0]++;
+        for (int i = 0; i < data.getLength(); i++) {
+            for (int column = 0; column < data.getWidth(); column++) {
+                cardinalities[column][data.get(i,column)][0]++;
             }
         }
 

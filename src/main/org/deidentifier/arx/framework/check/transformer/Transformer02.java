@@ -20,6 +20,7 @@ package org.deidentifier.arx.framework.check.transformer;
 
 import org.deidentifier.arx.framework.Configuration;
 import org.deidentifier.arx.framework.check.distribution.IntArrayDictionary;
+import org.deidentifier.arx.framework.data.Memory;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
 
 /**
@@ -37,7 +38,7 @@ public class Transformer02 extends AbstractTransformer {
      * @param hierarchies
      *            the hierarchies
      */
-    public Transformer02(final int[][] data,
+    public Transformer02(final Memory data,
                          final GeneralizationHierarchy[] hierarchies,
                          final int[] sensitiveValues,
                          final IntArrayDictionary dictionarySensValue,
@@ -56,20 +57,19 @@ public class Transformer02 extends AbstractTransformer {
     @Override
     protected void processAll() {
         for (int i = startIndex; i < stopIndex; i++) {
-            intuple = data[i];
-            outtuple = buffer[i];
-            outtuple[outindex0] = idindex0[intuple[index0]][stateindex0];
-            outtuple[outindex1] = idindex1[intuple[index1]][stateindex1];
+            buffer.set(i,outindex0, idindex0[data.get(i, index0)][stateindex0]);
+            buffer.set(i,outindex1, idindex1[data.get(i, index1)][stateindex1]);
+
             switch (config.getCriterion()) {
             case K_ANONYMITY:
-                groupify.add(outtuple, i, 1);
+                groupify.add(i, 1);
                 break;
             case L_DIVERSITY:
             case T_CLOSENESS:
-                groupify.add(outtuple, i, 1, sensitiveValues[i]);
+                groupify.add(i, 1, sensitiveValues[i]);
                 break;
             case D_PRESENCE:
-                groupify.addD(outtuple, i, 1, 1);
+                groupify.addD(i, 1, 1);
                 break;
             default:
                 throw new UnsupportedOperationException(config.getCriterion() + ": currenty not supported");
@@ -90,20 +90,19 @@ public class Transformer02 extends AbstractTransformer {
         int processed = 0;
         while (element != null) {
 
-            intuple = data[element.representant];
-            outtuple = buffer[element.representant];
-            outtuple[outindex0] = idindex0[intuple[index0]][stateindex0];
-            outtuple[outindex1] = idindex1[intuple[index1]][stateindex1];
+            buffer.set(element.representant,outindex0, idindex0[data.get(element.representant, index0)][stateindex0]);
+            buffer.set(element.representant,outindex1, idindex1[data.get(element.representant, index1)][stateindex1]);
+
             switch (config.getCriterion()) {
             case K_ANONYMITY:
-                groupify.add(outtuple, element.representant, element.count);
+                groupify.add(element.representant, element.count);
                 break;
             case L_DIVERSITY:
             case T_CLOSENESS:
-                groupify.add(outtuple, element.representant, element.count, element.distribution);
+                groupify.add(element.representant, element.count, element.distribution);
                 break;
             case D_PRESENCE:
-                groupify.addD(outtuple, element.representant, element.count, element.pcount);
+                groupify.addD(element.representant, element.count, element.pcount);
                 break;
             default:
                 throw new UnsupportedOperationException(config.getCriterion() + ": currenty not supported");
@@ -129,20 +128,20 @@ public class Transformer02 extends AbstractTransformer {
         stopIndex *= ssStepWidth;
 
         for (int i = startIndex; i < stopIndex; i += ssStepWidth) {
-            intuple = data[snapshot[i]];
-            outtuple = buffer[snapshot[i]];
-            outtuple[outindex0] = idindex0[intuple[index0]][stateindex0];
-            outtuple[outindex1] = idindex1[intuple[index1]][stateindex1];
+
+            buffer.set(snapshot[i],outindex0, idindex0[data.get(snapshot[i], index0)][stateindex0]);
+            buffer.set(snapshot[i],outindex1, idindex1[data.get(snapshot[i], index1)][stateindex1]);
+            
             switch (config.getCriterion()) {
             case K_ANONYMITY:
-                groupify.add(outtuple, snapshot[i], snapshot[i + 1]);
+                groupify.add(snapshot[i], snapshot[i + 1]);
                 break;
             case L_DIVERSITY:
             case T_CLOSENESS:
-                groupify.add(outtuple, snapshot[i], snapshot[i + 1], dictionarySensValue.get(snapshot[i + 2]), dictionarySensFreq.get(snapshot[i + 3]));
+                groupify.add(snapshot[i], snapshot[i + 1], dictionarySensValue.get(snapshot[i + 2]), dictionarySensFreq.get(snapshot[i + 3]));
                 break;
             case D_PRESENCE:
-                groupify.addD(outtuple, snapshot[i], snapshot[i + 1], snapshot[i + 2]);
+                groupify.addD(snapshot[i], snapshot[i + 1], snapshot[i + 2]);
                 break;
             default:
                 throw new UnsupportedOperationException(config.getCriterion() + ": currenty not supported");

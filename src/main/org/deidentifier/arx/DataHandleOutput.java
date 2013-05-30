@@ -24,17 +24,18 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.ARXConfiguration.Criterion;
 import org.deidentifier.arx.ARXConfiguration.LDiversityCriterion;
 import org.deidentifier.arx.ARXConfiguration.TClosenessCriterion;
 import org.deidentifier.arx.ARXLattice.ARXNode;
+import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.framework.Configuration;
 import org.deidentifier.arx.framework.check.INodeChecker;
 import org.deidentifier.arx.framework.check.NodeChecker;
 import org.deidentifier.arx.framework.data.Data;
 import org.deidentifier.arx.framework.data.DataManager;
 import org.deidentifier.arx.framework.data.Dictionary;
+import org.deidentifier.arx.framework.data.Memory;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
 import org.deidentifier.arx.framework.lattice.IDGenerator;
 import org.deidentifier.arx.framework.lattice.Lattice;
@@ -66,7 +67,7 @@ public class DataHandleOutput extends DataHandle implements ARXResult {
          */
         @Override
         public boolean hasNext() {
-            return row < dataQI.getArray().length;
+            return row < dataQI.getMemory().getLength();
         }
 
         /*
@@ -145,7 +146,7 @@ public class DataHandleOutput extends DataHandle implements ARXResult {
     private int[]         inverseMap;
 
     /** An inverse map to data arrays. */
-    private int[][][]     inverseData;
+    private Memory[]  inverseData;
 
     /** An inverse map to dictionaries. */
     private Dictionary[]  inverseDictionaries;
@@ -635,12 +636,12 @@ public class DataHandleOutput extends DataHandle implements ARXResult {
             return suppressionString;
         default:
             final int index = inverseMap[col] & AttributeType.MASK;
-            final int[][] data = inverseData[type];
+            final Memory data = inverseData[type];
 
             if (removeOutliers &&
-                ((dataQI.getArray()[row][0] & Data.OUTLIER_MASK) != 0)) { return suppressionString; }
+                ((dataQI.getMemory().get(row,0) & Data.OUTLIER_MASK) != 0)) { return suppressionString; }
 
-            final int value = data[row][index] & Data.REMOVE_OUTLIER_MASK;
+            final int value = data.get(row,index) & Data.REMOVE_OUTLIER_MASK;
             final String[][] dictionary = inverseDictionaries[type].getMapping();
             return dictionary[index][value];
         }
@@ -702,10 +703,10 @@ public class DataHandleOutput extends DataHandle implements ARXResult {
         }
 
         // Build inverse data array
-        inverseData = new int[3][][];
-        inverseData[AttributeType.ATTR_TYPE_IS] = dataIS.getArray();
-        inverseData[AttributeType.ATTR_TYPE_SE] = dataSE.getArray();
-        inverseData[AttributeType.ATTR_TYPE_QI] = dataQI.getArray();
+        inverseData = new Memory[3];
+        inverseData[AttributeType.ATTR_TYPE_IS] = dataIS.getMemory();
+        inverseData[AttributeType.ATTR_TYPE_SE] = dataSE.getMemory();
+        inverseData[AttributeType.ATTR_TYPE_QI] = dataQI.getMemory();
 
         // Build inverse dictionary array
         inverseDictionaries = new Dictionary[3];
@@ -716,7 +717,7 @@ public class DataHandleOutput extends DataHandle implements ARXResult {
 
     @Override
     protected boolean isOutlierInternal(final int row) {
-        return ((dataQI.getArray()[row][0] & Data.OUTLIER_MASK) != 0);
+        return ((dataQI.getMemory().get(row,0) & Data.OUTLIER_MASK) != 0);
     }
 
     /**
@@ -776,14 +777,8 @@ public class DataHandleOutput extends DataHandle implements ARXResult {
     protected void swapInternal(final int row1, final int row2) {
         // Now swap
         getHandle(currentNode);
-        int[] temp = dataQI.getArray()[row1];
-        dataQI.getArray()[row1] = dataQI.getArray()[row2];
-        dataQI.getArray()[row2] = temp;
-        temp = dataSE.getArray()[row1];
-        dataSE.getArray()[row1] = dataSE.getArray()[row2];
-        dataSE.getArray()[row2] = temp;
-        temp = dataIS.getArray()[row1];
-        dataIS.getArray()[row1] = dataIS.getArray()[row2];
-        dataIS.getArray()[row2] = temp;
+        dataQI.getMemory().swap(row1, row2);
+        dataSE.getMemory().swap(row1, row2);
+        dataIS.getMemory().swap(row1, row2);
     }
 }

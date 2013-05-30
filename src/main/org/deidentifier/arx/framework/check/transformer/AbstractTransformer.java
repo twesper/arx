@@ -25,6 +25,7 @@ import org.deidentifier.arx.framework.check.StateMachine.TransitionType;
 import org.deidentifier.arx.framework.check.distribution.IntArrayDictionary;
 import org.deidentifier.arx.framework.check.groupify.HashGroupifyEntry;
 import org.deidentifier.arx.framework.check.groupify.IHashGroupify;
+import org.deidentifier.arx.framework.data.Memory;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
 
 /**
@@ -41,7 +42,7 @@ public abstract class AbstractTransformer implements Callable<IHashGroupify> {
     protected int                             bucket;
 
     /** The buffer. */
-    protected int[][]                         buffer;
+    protected Memory                      buffer;
 
     /** The column index array. */
     protected final int[]                     columnIndexArray;
@@ -50,7 +51,7 @@ public abstract class AbstractTransformer implements Callable<IHashGroupify> {
     protected final int[][][]                 columnMapArray;
 
     /** The data. */
-    protected final int[][]                   data;
+    protected final Memory                data;
 
     /** The dictionary for the snapshot compression **/
     protected final IntArrayDictionary        dictionarySensFreq;
@@ -83,9 +84,6 @@ public abstract class AbstractTransformer implements Callable<IHashGroupify> {
             index4, index5, index6, index7, index8, index9, index10, index11,
             index12, index13, index14;
 
-    /** The intuple. */
-    protected int[]                           intuple;
-
     /** The generalization hierarchies */
     protected int[][][]                       map;
 
@@ -97,9 +95,6 @@ public abstract class AbstractTransformer implements Callable<IHashGroupify> {
             outindex3, outindex4, outindex5, outindex6, outindex7, outindex8,
             outindex9, outindex10, outindex11, outindex12, outindex13,
             outindex14;
-
-    /** The outtuple. */
-    protected int[]                           outtuple;
 
     /** The sesitive values. */
     protected final int[]                     sensitiveValues;
@@ -137,7 +132,7 @@ public abstract class AbstractTransformer implements Callable<IHashGroupify> {
      * @param hierarchies
      *            the hierarchies
      */
-    public AbstractTransformer(final int[][] data,
+    public AbstractTransformer(Memory data,
                                final GeneralizationHierarchy[] hierarchies,
                                final int[] sensitiveValues,
                                final IntArrayDictionary dictionarySensValue,
@@ -152,7 +147,7 @@ public abstract class AbstractTransformer implements Callable<IHashGroupify> {
         ssStepWidth = config.getCriterionSpecificSnapshotLength();
 
         // Init arrays
-        dimensions = data[0].length;
+        dimensions = data.getWidth();
         int arraySizes = 15;
         if (dimensions > arraySizes) {
             arraySizes = dimensions;
@@ -229,7 +224,7 @@ public abstract class AbstractTransformer implements Callable<IHashGroupify> {
                      final int stopIndex,
                      final int bucket,
                      final HashGroupifyEntry element,
-                     final int[][] buffer) {
+                     final Memory buffer) {
 
         this.buffer = buffer;
 

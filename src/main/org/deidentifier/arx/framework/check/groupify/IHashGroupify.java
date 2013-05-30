@@ -19,20 +19,19 @@
 package org.deidentifier.arx.framework.check.groupify;
 
 import org.deidentifier.arx.framework.check.distribution.Distribution;
+import org.deidentifier.arx.framework.data.Memory;
 
 public interface IHashGroupify {
 
     /**
      * Adds a entry to the operator.
      * 
-     * @param key
-     *            the key
      * @param line
      *            the line
      * @param value
      *            the value
      */
-    public abstract void add(int[] key, int line, int value);
+    public abstract void add(int line, int value);
 
     /**
      * Adds an entry to this operator having already a frequency set attached.
@@ -47,7 +46,7 @@ public interface IHashGroupify {
      * @param distribution
      *            the frequency set
      */
-    public abstract void add(int[] key, int line, int value, Distribution frequencySet);
+    public abstract void add(int line, int value, Distribution frequencySet);
 
     /**
      * Adds an entry. Used for l-diverstiy (basic optimization).
@@ -61,7 +60,7 @@ public interface IHashGroupify {
      * @param sensitiveValue
      *            the sensitive value
      */
-    public abstract void add(int[] key, int line, int value, int sensitiveValue);
+    public abstract void add(int line, int value, int sensitiveValue);
 
     /**
      * Adds an entry. Used for l-diverstiy (history optimization).
@@ -77,7 +76,7 @@ public interface IHashGroupify {
      * @param sensitiveFrequencies
      *            the sensitive frequencies
      */
-    public abstract void add(int[] key, int line, int value, int[] sensitiveElements, int[] sensitiveFrequencies);
+    public abstract void add(int line, int value, int[] sensitiveElements, int[] sensitiveFrequencies);
 
     /**
      * Adds an entry. Used for d-presence
@@ -86,7 +85,7 @@ public interface IHashGroupify {
      * @param value the count of the occurence of key
      * @param tvalue the count of the occurence of key in the research subset
      */
-    public abstract void addD(int[] key, int line, int value, int tvalue);
+    public abstract void addD(int line, int value, int tvalue);
 
     /**
      * Clear.
@@ -133,7 +132,7 @@ public interface IHashGroupify {
      * 
      * @param data
      */
-    public abstract void markOutliers(int[][] buffer);
+    public abstract void markOutliers(Memory buffer);
 
     /**
      * Size.

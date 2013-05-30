@@ -36,9 +36,6 @@ public class HashGroupifyEntry {
     /** The hashcode of this class. */
     public final int         hashcode;
 
-    /** The key of this class. */
-    public final int[]       key;
-
     /** The next element in this bucket. */
     public HashGroupifyEntry next         = null;
 
@@ -62,8 +59,8 @@ public class HashGroupifyEntry {
      * @param hash
      *            the hash
      */
-    public HashGroupifyEntry(final int[] key, final int hash) {
-        hashcode = hash;
-        this.key = key;
+    public HashGroupifyEntry(final int representant, final int hash) {
+        this.hashcode = hash;
+        this.representant = representant;
     }
 }

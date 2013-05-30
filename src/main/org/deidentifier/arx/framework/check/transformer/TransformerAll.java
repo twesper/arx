@@ -20,6 +20,7 @@ package org.deidentifier.arx.framework.check.transformer;
 
 import org.deidentifier.arx.framework.Configuration;
 import org.deidentifier.arx.framework.check.distribution.IntArrayDictionary;
+import org.deidentifier.arx.framework.data.Memory;
 import org.deidentifier.arx.framework.data.GeneralizationHierarchy;
 
 /**
@@ -37,7 +38,7 @@ public class TransformerAll extends AbstractTransformer {
      * @param hierarchies
      *            the hierarchies
      */
-    public TransformerAll(final int[][] data,
+    public TransformerAll(final Memory data,
                           final GeneralizationHierarchy[] hierarchies,
                           final int[] sensitiveValues,
                           final IntArrayDictionary dictionarySensValue,
@@ -55,24 +56,21 @@ public class TransformerAll extends AbstractTransformer {
      */
     @Override
     protected void processAll() {
-        final int dimensions = data[0].length;
         for (int i = startIndex; i < stopIndex; i++) {
-            intuple = data[i];
-            outtuple = buffer[i];
             for (int d = 0; d < dimensions; d++) {
                 final int state = states[d];
-                outtuple[d] = map[d][intuple[d]][state];
+                buffer.set(i,d, map[d][data.get(i, d)][state]);
             }
             switch (config.getCriterion()) {
             case K_ANONYMITY:
-                groupify.add(outtuple, i, 1);
+                groupify.add(i, 1);
                 break;
             case L_DIVERSITY:
             case T_CLOSENESS:
-                groupify.add(outtuple, i, 1, sensitiveValues[i]);
+                groupify.add(i, 1, sensitiveValues[i]);
                 break;
             case D_PRESENCE:
-                groupify.addD(outtuple, i, 1, 1);
+                groupify.addD(i, 1, 1);
                 break;
             default:
                 throw new UnsupportedOperationException(config.getCriterion() + ": currenty not supported");
@@ -92,22 +90,20 @@ public class TransformerAll extends AbstractTransformer {
         int processed = 0;
         while (element != null) {
 
-            intuple = data[element.representant];
-            outtuple = buffer[element.representant];
             for (int d = 0; d < dimensions; d++) {
                 final int state = states[d];
-                outtuple[d] = map[d][intuple[d]][state];
+                buffer.set(element.representant,d, map[d][data.get(element.representant, d)][state]);
             }
             switch (config.getCriterion()) {
             case K_ANONYMITY:
-                groupify.add(outtuple, element.representant, element.count);
+                groupify.add(element.representant, element.count);
                 break;
             case L_DIVERSITY:
             case T_CLOSENESS:
-                groupify.add(outtuple, element.representant, element.count, element.distribution);
+                groupify.add(element.representant, element.count, element.distribution);
                 break;
             case D_PRESENCE:
-                groupify.addD(outtuple, element.representant, element.count, element.pcount);
+                groupify.addD(element.representant, element.count, element.pcount);
                 break;
             default:
                 throw new UnsupportedOperationException(config.getCriterion() + ": currenty not supported");
@@ -134,22 +130,20 @@ public class TransformerAll extends AbstractTransformer {
         stopIndex *= ssStepWidth;
 
         for (int i = startIndex; i < stopIndex; i += ssStepWidth) {
-            intuple = data[snapshot[i]];
-            outtuple = buffer[snapshot[i]];
             for (int d = 0; d < dimensions; d++) {
                 final int state = states[d];
-                outtuple[d] = map[d][intuple[d]][state];
+                buffer.set(snapshot[i],d, map[d][data.get(snapshot[i], d)][state]);
             }
             switch (config.getCriterion()) {
             case K_ANONYMITY:
-                groupify.add(outtuple, snapshot[i], snapshot[i + 1]);
+                groupify.add(snapshot[i], snapshot[i + 1]);
                 break;
             case L_DIVERSITY:
             case T_CLOSENESS:
-                groupify.add(outtuple, snapshot[i], snapshot[i + 1], dictionarySensValue.get(snapshot[i + 2]), dictionarySensFreq.get(snapshot[i + 3]));
+                groupify.add(snapshot[i], snapshot[i + 1], dictionarySensValue.get(snapshot[i + 2]), dictionarySensFreq.get(snapshot[i + 3]));
                 break;
             case D_PRESENCE:
-                groupify.addD(outtuple, snapshot[i], snapshot[i + 1], snapshot[i + 2]);
+                groupify.addD(snapshot[i], snapshot[i + 1], snapshot[i + 2]);
                 break;
             default:
                 throw new UnsupportedOperationException(config.getCriterion() + ": currenty not supported");

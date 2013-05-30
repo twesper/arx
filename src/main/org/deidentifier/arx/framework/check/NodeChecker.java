@@ -105,13 +105,13 @@ public class NodeChecker implements INodeChecker {
             throw new UnsupportedOperationException(config.getCriterion() + ": currenty not supported");
         }
 
-        history = new History(manager.getDataQI().getArray().length, historyMaxSize, snapshotSizeDataset, snapshotSizeSnapshot, config, dictionarySensValue, dictionarySensFreq);
+        history = new History(manager.getDataQI().getMemory().getLength(), historyMaxSize, snapshotSizeDataset, snapshotSizeSnapshot, config, dictionarySensValue, dictionarySensFreq);
 
+
+        transformer = new Transformer(manager.getDataQI().getMemory(), manager.getHierarchies(), manager.getDataSE().getMemory(), config, dictionarySensValue, dictionarySensFreq);
         stateMachine = new StateMachine(history);
-        currentGroupify = new HashGroupify(initialSize, config);
-        lastGroupify = new HashGroupify(initialSize, config);
-
-        transformer = new Transformer(manager.getDataQI().getArray(), manager.getHierarchies(), manager.getDataSE().getArray(), config, dictionarySensValue, dictionarySensFreq);
+        currentGroupify = new HashGroupify(transformer.getBuffer(), initialSize, config);
+        lastGroupify = new HashGroupify(transformer.getBuffer(), initialSize, config);
     }
 
     @Override
