@@ -23,6 +23,9 @@ public class Memory  {
 
     public Memory(int rows, int cols) {
         
+        // TODO: Get rid of this for SE and IS
+        // Implement a second variant of Memory, that implements
+        // for-loops and does not have this restriction
         if (cols>12) {
             throw new IndexOutOfBoundsException("Not more than 12 columns supported!");
         }
