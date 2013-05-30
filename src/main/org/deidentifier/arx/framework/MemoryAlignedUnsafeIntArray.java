@@ -46,11 +46,11 @@ public class MemoryAlignedUnsafeIntArray implements IMemory {
 
     @Override
     public boolean equals(IMemory other, int row) {
-        final MemoryAlignedUnsafeIntArray o = (MemoryAlignedUnsafeIntArray) other;
+        final Unsafe o = ((MemoryAlignedUnsafeIntArray) other).unsafe;
         final long startAdress = baseAddress + (row * rowSize);
         final long endAdress = startAdress + rowSize;
         for (long base = startAdress; base < endAdress; base += 8) {
-            if (unsafe.getAddress(base) != o.unsafe.getAddress(base)) { return false; }
+            if (unsafe.getAddress(base) != o.getAddress(base)) { return false; }
         }
         return true;
     }

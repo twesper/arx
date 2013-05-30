@@ -53,7 +53,6 @@ public class MemoryAlignedLongArray implements IMemory {
 
     @Override
     public boolean equals(final IMemory other, final int row) {
-        // TODO: Potentially expensive cast here
         final long[] otherMemory = ((MemoryAlignedLongArray) other).memory;
         final int sIdx = row * rowSizeinLong;
         final int eIdx = sIdx + rowSizeinLong;
