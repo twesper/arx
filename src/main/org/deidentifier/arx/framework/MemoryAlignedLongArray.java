@@ -36,10 +36,12 @@ public class MemoryAlignedLongArray implements IMemory {
 
             long mask = 0L;
             for (int i = 0; i < currFieldSize; i++) {
-                mask |= (1L << (64 - offsetInCurrentLong - i));
+                mask |= (1L << (63 - offsetInCurrentLong - i));
             }
             masksGet[field] = mask;
             masksSet[field] = ~mask;
+
+            // System.out.println("colum: " + field + "-getMask:" + Long.toBinaryString(masksGet[field]) + "-setMask:" + Long.toBinaryString(masksSet[field]) + "-Length:" + currFieldSize);
 
             offsets[field] = (curLong - 1);
             currentlyUsedBits += currFieldSize;
@@ -103,17 +105,41 @@ public class MemoryAlignedLongArray implements IMemory {
     @Override
     public void set(final int row, final int col, final int val) {
         final int idx = getIndex(row, col);
-        long result = memory[idx];
         // clear previous bits
-        result &= masksSet[col];
-
+        memory[idx] &= masksSet[col];
         // set new bits
-        result |= (((long) val) << shifts[col]);
-
-        memory[idx] = result;
+        memory[idx] |= (((long) val) << shifts[col]);
     }
 
     private final int getIndex(final int row, final int col) {
         return (row * rowSizeinLong) + offsets[col];
+    }
+
+    public static void main(String[] args) throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        // byte[] sizes = { 2 };
+        byte[] sizes = { 2, 3 };
+
+        int[][] data = new int[2][sizes.length];
+        for (int row = 0; row < data.length; row++) {
+            for (int col = 0; col < sizes.length; col++) {
+                data[row][col] = col;
+            }
+        }
+
+        // Check that everything works
+        MemoryAlignedIntArray int0 = new MemoryAlignedIntArray(sizes, data.length);
+        MemoryAlignedLongArray long0 = new MemoryAlignedLongArray(sizes, data.length);
+        MemoryUnsafe unsafe0 = new MemoryUnsafe(sizes, data.length);
+        for (int row = 0; row < data.length; row++) {
+            for (int col = 0; col < sizes.length; col++) {
+                int0.set(row, col, data[row][col]);
+                long0.set(row, col, data[row][col]);
+                unsafe0.set(col, data[row][col]);
+                if (int0.get(row, col) != long0.get(row, col)) { throw new RuntimeException("Mismatch!"); }
+                if (int0.get(row, col) != unsafe0.get(col)) { throw new RuntimeException("Mismatch!"); }
+            }
+            unsafe0.base += unsafe0.rowSize;
+        }
+
     }
 }

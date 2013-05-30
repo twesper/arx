@@ -19,8 +19,8 @@ public class MemoryBenchmark {
         }
 
         // Check that everything works
-        MemoryAlignedIntArray int0 = new MemoryAlignedIntArray(sizes, rows);
-        MemoryAlignedUnsafeIntArray long0 = new MemoryAlignedUnsafeIntArray(sizes, rows);
+        MemoryAlignedUnsafeIntArray int0 = new MemoryAlignedUnsafeIntArray(sizes, rows);
+        MemoryUnsafe3 long0 = new MemoryUnsafe3(sizes, rows);
         MemoryUnsafe unsafe0 = new MemoryUnsafe(sizes, rows);
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < sizes.length; col++) {
@@ -36,13 +36,13 @@ public class MemoryBenchmark {
         System.out.println("Everything works. Starting benchmark!");
 
         // Int benchmark
-        MemoryAlignedIntArray int1 = new MemoryAlignedIntArray(sizes, rows);
-        MemoryAlignedIntArray int2 = new MemoryAlignedIntArray(sizes, rows);
+        MemoryAlignedUnsafeIntArray int1 = new MemoryAlignedUnsafeIntArray(sizes, rows);
+        MemoryAlignedUnsafeIntArray int2 = new MemoryAlignedUnsafeIntArray(sizes, rows);
         benchmark1(int1, int2, sizes, rows, data, repeats);
 
         // Long benchmark
-        MemoryAlignedUnsafeIntArray long1 = new MemoryAlignedUnsafeIntArray(sizes, rows);
-        MemoryAlignedUnsafeIntArray long2 = new MemoryAlignedUnsafeIntArray(sizes, rows);
+        MemoryUnsafe3 long1 = new MemoryUnsafe3(sizes, rows);
+        MemoryUnsafe3 long2 = new MemoryUnsafe3(sizes, rows);
         benchmark2(long1, long2, sizes, rows, data, repeats);
 
         // Unsafe benchmark
@@ -55,7 +55,7 @@ public class MemoryBenchmark {
         return (int) (Math.random() * (Math.pow(2, sizes[col]) - 1d));
     }
 
-    private static void benchmark1(MemoryAlignedIntArray m1, MemoryAlignedIntArray m2, byte[] sizes, int rows, int[][] data, int repeats) {
+    private static void benchmark1(MemoryAlignedUnsafeIntArray m1, MemoryAlignedUnsafeIntArray m2, byte[] sizes, int rows, int[][] data, int repeats) {
 
         long start = System.currentTimeMillis();
 
@@ -108,7 +108,7 @@ public class MemoryBenchmark {
         System.out.println(" - Total    : " + (copy + compare + hashcode + write));
     }
 
-    private static void benchmark2(MemoryAlignedUnsafeIntArray m1, MemoryAlignedUnsafeIntArray m2, byte[] sizes, int rows, int[][] data, int repeats) {
+    private static void benchmark2(MemoryUnsafe3 m1, MemoryUnsafe3 m2, byte[] sizes, int rows, int[][] data, int repeats) {
 
         long start = System.currentTimeMillis();
 
