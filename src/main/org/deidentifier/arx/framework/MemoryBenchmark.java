@@ -19,7 +19,7 @@ public class MemoryBenchmark {
         }
 
         // Check that everything works
-        MemoryAlignedUnsafeIntArray2 int0 = new MemoryAlignedUnsafeIntArray2(sizes, rows);
+        MemoryUnsafe5 int0 = new MemoryUnsafe5(sizes, rows);
         MemoryUnsafe4 long0 = new MemoryUnsafe4(sizes, rows);
         MemoryUnsafe unsafe0 = new MemoryUnsafe(sizes, rows);
         for (int row = 0; row < rows; row++) {
@@ -36,8 +36,8 @@ public class MemoryBenchmark {
         System.out.println("Everything works. Starting benchmark!");
 
         // Int benchmark
-        MemoryAlignedUnsafeIntArray2 int1 = new MemoryAlignedUnsafeIntArray2(sizes, rows);
-        MemoryAlignedUnsafeIntArray2 int2 = new MemoryAlignedUnsafeIntArray2(sizes, rows);
+        MemoryUnsafe5 int1 = new MemoryUnsafe5(sizes, rows);
+        MemoryUnsafe5 int2 = new MemoryUnsafe5(sizes, rows);
         benchmark1(int1, int2, sizes, rows, data, repeats);
 
         // Long benchmark
@@ -55,7 +55,7 @@ public class MemoryBenchmark {
         return (int) (Math.random() * (Math.pow(2, sizes[col]) - 1d));
     }
 
-    private static void benchmark1(MemoryAlignedUnsafeIntArray2 m1, MemoryAlignedUnsafeIntArray2 m2, byte[] sizes, int rows, int[][] data, int repeats) {
+    private static void benchmark1(MemoryUnsafe5 m1, MemoryUnsafe5 m2, byte[] sizes, int rows, int[][] data, int repeats) {
 
         long start = System.currentTimeMillis();
 
