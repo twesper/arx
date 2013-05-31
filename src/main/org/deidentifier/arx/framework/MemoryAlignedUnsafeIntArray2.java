@@ -53,7 +53,7 @@ public class MemoryAlignedUnsafeIntArray2 implements IMemory {
         final long startAdress = baseAddress + (row * rowSize);
         final long endAdress = startAdress + rowSize;
         for (long base = startAdress; base < endAdress; base += 8) {
-            if (unsafe.getAddress(base) != o.getAddress(base)) { return false; }
+            if (unsafe.getLong(base) != o.getLong(base)) { return false; }
         }
         return true;
     }
@@ -64,17 +64,17 @@ public class MemoryAlignedUnsafeIntArray2 implements IMemory {
         final long startAdress = baseAddress + (row * rowSize);
         switch (rowSizeInLongs) {
         case 6:
-            temp = (31 * temp) + unsafe.getAddress(startAdress+40);
+            temp = (31 * temp) + unsafe.getLong(startAdress+40);
         case 5:
-            temp = (31 * temp) + unsafe.getAddress(startAdress+32);
+            temp = (31 * temp) + unsafe.getLong(startAdress+32);
         case 4:
-            temp = (31 * temp) + unsafe.getAddress(startAdress+24);
+            temp = (31 * temp) + unsafe.getLong(startAdress+24);
         case 3:
-            temp = (31 * temp) + unsafe.getAddress(startAdress+16);
+            temp = (31 * temp) + unsafe.getLong(startAdress+16);
         case 2:
-            temp = (31 * temp) + unsafe.getAddress(startAdress+8);
+            temp = (31 * temp) + unsafe.getLong(startAdress+8);
         case 1:
-            temp = (31 * temp) + unsafe.getAddress(startAdress);
+            temp = (31 * temp) + unsafe.getLong(startAdress);
             break;
         default:
             throw new RuntimeException("Invalid bytes per row!");

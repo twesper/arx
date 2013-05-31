@@ -71,7 +71,7 @@ public class MemoryUnsafe2 implements IMemory {
         final long startAdress = address + (row * rowSize);
         final long endAdress = startAdress + rowSize;
         for (long base = startAdress; base < endAdress; base += 8) {
-            if (unsafe.getAddress(base) != o.unsafe.getAddress(base)) { return false; }
+            if (unsafe.getLong(base) != o.unsafe.getLong(base)) { return false; }
         }
         return true;
     }
@@ -80,7 +80,7 @@ public class MemoryUnsafe2 implements IMemory {
     public int get(final int row, final int col) {
         final long base = address + ((long)row * rowSize) + fieldOffset[col];
 
-        // unsafe.putAddress(allocateMemory, value);
+        // unsafe.putLong(allocateMemory, value);
 
         switch (fieldSize[col]) {
         case 1:
@@ -108,7 +108,7 @@ public class MemoryUnsafe2 implements IMemory {
         final long startAdress = address + (row * rowSize);
         final long endAdress = startAdress + rowSize;
         for (long base = startAdress; base < endAdress; base += 8) {
-            final long element = unsafe.getAddress(base);
+            final long element = unsafe.getLong(base);
             final int elementHash = (int) (element ^ (element >>> 32));
             result = (31 * result) + elementHash;
         }

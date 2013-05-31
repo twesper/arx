@@ -20,7 +20,7 @@ public class MemoryBenchmark {
 
         // Check that everything works
         MemoryAlignedUnsafeIntArray2 int0 = new MemoryAlignedUnsafeIntArray2(sizes, rows);
-        MemoryUnsafe3 long0 = new MemoryUnsafe3(sizes, rows);
+        MemoryUnsafe4 long0 = new MemoryUnsafe4(sizes, rows);
         MemoryUnsafe unsafe0 = new MemoryUnsafe(sizes, rows);
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < sizes.length; col++) {

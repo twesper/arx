@@ -13,13 +13,15 @@ import sun.misc.Unsafe;
  */
 public class MemoryUnsafe4 implements IMemory {
 
-    private final long   baseAddress;   // In bytes
-    // bit positions --> offset,getMask, clearMask,shift
-    private final long[] bitPos;        // all aligned in one long array to enable efficient caching in one cache line
-    private final long   rowSizeInBytes; // In bytes
+    private final long       baseAddress;       // In bytes
+    // bit positions --> offset,getMask, clearMask,shift, calc
+    private final long[]     bitPos;            // all aligned in one long array to enable efficient caching in one cache line
+    private final long       rowSizeInBytes;    // In bytes
 
-    private final long   size;          // In bytes
-    private final Unsafe unsafe;        // The unsafe
+    private final long       size;              // In bytes
+    private final Unsafe     unsafe;            // The unsafe
+
+    private static final int NUM_LONGS = 1 << 3;
 
     public MemoryUnsafe4(final byte[] fieldSizes, final int numRows) throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 
@@ -29,7 +31,7 @@ public class MemoryUnsafe4 implements IMemory {
         unsafe = (Unsafe) f.get(null);
 
         // Field properties
-        bitPos = new long[fieldSizes.length * 4];
+        bitPos = new long[fieldSizes.length * NUM_LONGS];
 
         int currentlyUsedBits = 0;
         int offsetInCurrentLong = 0;
@@ -60,7 +62,7 @@ public class MemoryUnsafe4 implements IMemory {
             bitPos[idx + 2] = mask;
             // shift
             bitPos[idx + 3] = curShift;
-            idx += 4;
+            idx += NUM_LONGS;
 
             currentlyUsedBits += currFieldSize;
             offsetInCurrentLong += currFieldSize;
@@ -72,6 +74,11 @@ public class MemoryUnsafe4 implements IMemory {
         // Allocate
         size = rowSizeInBytes * numRows;
         baseAddress = unsafe.allocateMemory(size);
+
+        for (int i = 0; i < bitPos.length; i += NUM_LONGS) {
+            bitPos[i] += baseAddress;
+            // bitPos[i + 7] = rowSizeInBytes;
+        }
     }
 
     @Override
@@ -80,18 +87,16 @@ public class MemoryUnsafe4 implements IMemory {
         final long startAdress = baseAddress + (row * rowSizeInBytes);
         final long endAdress = startAdress + rowSizeInBytes;
         for (long base = startAdress; base < endAdress; base += 8) {
-            if (unsafe.getAddress(base) != o.getAddress(base)) { return false; }
+            if (unsafe.getLong(base) != o.getLong(base)) { return false; }
         }
         return true;
     }
 
     @Override
     public int get(final int row, final int col) {
-        final int idx = (col << 2);
-        final long base = baseAddress + (row * rowSizeInBytes) + bitPos[idx];
-        long result = unsafe.getAddress(base);
-        result = ((result & bitPos[idx + 1]) >>> bitPos[idx + 3]);
-        return (int) result;
+        final int idx = (col << 3);
+        bitPos[idx + 4] = (row * rowSizeInBytes) + bitPos[idx];
+        return (int) ((unsafe.getLong(bitPos[idx + 4]) & bitPos[idx + 1]) >>> bitPos[idx + 3]);
     }
 
     @Override
@@ -106,7 +111,7 @@ public class MemoryUnsafe4 implements IMemory {
         final long startAdress = baseAddress + (row * rowSizeInBytes);
         final long endAdress = startAdress + rowSizeInBytes;
         for (long base = startAdress; base < endAdress; base += 8) {
-            final long element = unsafe.getAddress(base);
+            final long element = unsafe.getLong(base);
             final int elementHash = (int) (element ^ (element >>> 32));
             result = (31 * result) + elementHash;
         }
@@ -115,15 +120,15 @@ public class MemoryUnsafe4 implements IMemory {
 
     @Override
     public void set(final int row, final int col, final int val) {
-        final int idx = (col << 2);
-        final long base = baseAddress + (row * rowSizeInBytes) + bitPos[idx];
-        long result = unsafe.getAddress(base);
+        final int idx = (col << 3);
+        bitPos[idx + 4] = (row * rowSizeInBytes) + bitPos[idx];
+        bitPos[idx + 5] = unsafe.getLong(bitPos[idx + 4]);
 
         // clear previous bits
-        result &= bitPos[idx + 2];
+        bitPos[idx + 5] &= bitPos[idx + 2];
         // set new bits
-        result |= (((long) val) << bitPos[idx + 3]);
+        bitPos[idx + 5] |= (((long) val) << bitPos[idx + 3]);
 
-        unsafe.putAddress(base, result);
+        unsafe.putLong(bitPos[idx + 4], bitPos[idx + 5]);
     }
 }

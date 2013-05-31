@@ -50,7 +50,7 @@ public class MemoryAlignedUnsafeIntArray implements IMemory {
         final long startAdress = baseAddress + (row * rowSize);
         final long endAdress = startAdress + rowSize;
         for (long base = startAdress; base < endAdress; base += 8) {
-            if (unsafe.getAddress(base) != o.getAddress(base)) { return false; }
+            if (unsafe.getLong(base) != o.getLong(base)) { return false; }
         }
         return true;
     }
@@ -62,7 +62,7 @@ public class MemoryAlignedUnsafeIntArray implements IMemory {
         final long startAdress = baseAddress + (row * rowSize);
         final long endAdress = startAdress + rowSize;
         for (long base = startAdress; base < endAdress; base += 8) {
-            final long element = unsafe.getAddress(base);
+            final long element = unsafe.getLong(base);
             final int elementHash = (int) (element ^ (element >>> 32));
             result = (31 * result) + elementHash;
         }

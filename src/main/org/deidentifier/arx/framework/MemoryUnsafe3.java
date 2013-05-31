@@ -75,7 +75,7 @@ public class MemoryUnsafe3 implements IMemory {
         final long startAdress = address + (row * rowSizeInBytes);
         final long endAdress = startAdress + rowSizeInBytes;
         for (long base = startAdress; base < endAdress; base += 8) {
-            if (unsafe.getAddress(base) != o.getAddress(base)) { return false; }
+            if (unsafe.getLong(base) != o.getLong(base)) { return false; }
         }
         return true;
     }
@@ -83,7 +83,7 @@ public class MemoryUnsafe3 implements IMemory {
     @Override
     public int get(final int row, final int col) {
         final long base = address + (row * rowSizeInBytes) + fieldOffset[col];
-        long result = unsafe.getAddress(base);
+        long result = unsafe.getLong(base);
         result = ((result & getMasks[col]) >>> shifts[col]);
         return (int) result;
     }
@@ -102,7 +102,7 @@ public class MemoryUnsafe3 implements IMemory {
         final long startAdress = address + (row * rowSizeInBytes);
         final long endAdress = startAdress + rowSizeInBytes;
         for (long base = startAdress; base < endAdress; base += 8) {
-            final long element = unsafe.getAddress(base);
+            final long element = unsafe.getLong(base);
             final int elementHash = (int) (element ^ (element >>> 32));
             result = (31 * result) + elementHash;
         }
@@ -122,13 +122,13 @@ public class MemoryUnsafe3 implements IMemory {
     @Override
     public void set(final int row, final int col, final int val) {
         final long base = address + (row * rowSizeInBytes) + fieldOffset[col];
-        long result = unsafe.getAddress(base);
+        long result = unsafe.getLong(base);
         // clear previous bits
         result &= clearMasks[col];
 
         // set new bits
         result |= (((long) val) << shifts[col]);
 
-        unsafe.putAddress(base, result);
+        unsafe.putLong(base, result);
     }
 }
