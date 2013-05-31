@@ -11,18 +11,17 @@ import sun.misc.Unsafe;
  *  
  * @author Prasser, Kohlmayer
  */
-public class MemoryUnsafe3 implements IMemory {
+public class MemoryUnsafe4 implements IMemory {
 
-    private final long   address;       // In bytes
-    private final long[] clearMasks;
-    private final long[] fieldOffset;   // In bytes
-    private final long[] getMasks;
+    private final long   baseAddress;   // In bytes
+    // bit positions --> offset,getMask, clearMask,shift
+    private final long[] bitPos;        // all aligned in one long array to enable efficient caching in one cache line
     private final long   rowSizeInBytes; // In bytes
-    private final byte[] shifts;
+
     private final long   size;          // In bytes
     private final Unsafe unsafe;        // The unsafe
 
-    public MemoryUnsafe3(final byte[] fieldSizes, final int numRows) throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+    public MemoryUnsafe4(final byte[] fieldSizes, final int numRows) throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 
         // Access unsafe
         final Field f = Unsafe.class.getDeclaredField("theUnsafe");
@@ -30,14 +29,12 @@ public class MemoryUnsafe3 implements IMemory {
         unsafe = (Unsafe) f.get(null);
 
         // Field properties
-        fieldOffset = new long[fieldSizes.length];
-        shifts = new byte[fieldSizes.length];
-        getMasks = new long[fieldSizes.length];
-        clearMasks = new long[fieldSizes.length];
+        bitPos = new long[fieldSizes.length * 4];
 
         int currentlyUsedBits = 0;
         int offsetInCurrentLong = 0;
         int curLong = 1;
+        int idx = 0;
         for (int field = 0; field < fieldSizes.length; field++) {
             final int currFieldSize = fieldSizes[field];
 
@@ -48,31 +45,39 @@ public class MemoryUnsafe3 implements IMemory {
                 offsetInCurrentLong = 0;
             }
 
-            shifts[field] = (byte) (64 - offsetInCurrentLong - currFieldSize);
+            final byte curShift = (byte) (64 - offsetInCurrentLong - currFieldSize);
 
             long mask = 0L;
             for (int i = 0; i < currFieldSize; i++) {
                 mask |= (1L << (63 - offsetInCurrentLong - i));
             }
-            getMasks[field] = mask;
-            clearMasks[field] = ~mask;
 
-            fieldOffset[field] = (curLong - 1);
+            // offset
+            bitPos[idx] = (curLong - 1);
+            // getMask
+            bitPos[idx + 1] = mask;
+            // clearmask
+            bitPos[idx + 2] = mask;
+            // shift
+            bitPos[idx + 3] = curShift;
+            idx += 4;
+
             currentlyUsedBits += currFieldSize;
             offsetInCurrentLong += currFieldSize;
         }
-        // rowSizeInBytes = (int) Math.ceil(currentlyUsedBits / 8d);
-        this.rowSizeInBytes = curLong * 8;
+
+        // make multiple of 8
+        rowSizeInBytes = curLong * 8;
 
         // Allocate
         size = rowSizeInBytes * numRows;
-        address = unsafe.allocateMemory(size);
+        baseAddress = unsafe.allocateMemory(size);
     }
 
     @Override
     public boolean equals(final IMemory other, final int row) {
-        final Unsafe o = ((MemoryUnsafe3) other).unsafe;
-        final long startAdress = address + (row * rowSizeInBytes);
+        final Unsafe o = ((MemoryUnsafe4) other).unsafe;
+        final long startAdress = baseAddress + (row * rowSizeInBytes);
         final long endAdress = startAdress + rowSizeInBytes;
         for (long base = startAdress; base < endAdress; base += 8) {
             if (unsafe.getAddress(base) != o.getAddress(base)) { return false; }
@@ -82,9 +87,10 @@ public class MemoryUnsafe3 implements IMemory {
 
     @Override
     public int get(final int row, final int col) {
-        final long base = address + (row * rowSizeInBytes) + fieldOffset[col];
+        final int idx = (col << 2);
+        final long base = baseAddress + (row * rowSizeInBytes) + bitPos[idx];
         long result = unsafe.getAddress(base);
-        result = ((result & getMasks[col]) >>> shifts[col]);
+        result = ((result & bitPos[idx + 1]) >>> bitPos[idx + 3]);
         return (int) result;
     }
 
@@ -96,38 +102,27 @@ public class MemoryUnsafe3 implements IMemory {
     @Override
     public int hashcode(final int row) {
         // hashcode borrowed from Arrays.hashCode(long a[])
-
         int result = 1;
-
-        final long startAdress = address + (row * rowSizeInBytes);
+        final long startAdress = baseAddress + (row * rowSizeInBytes);
         final long endAdress = startAdress + rowSizeInBytes;
         for (long base = startAdress; base < endAdress; base += 8) {
             final long element = unsafe.getAddress(base);
             final int elementHash = (int) (element ^ (element >>> 32));
             result = (31 * result) + elementHash;
         }
-
         return result;
-
-        // long result = 23;
-        // final long startAdress = address + (row * rowSize);
-        // final long endAdress = startAdress + rowSize;
-        // for (long base = startAdress; base < endAdress; base += 8) {
-        // result = (37L * result) + unsafe.getInt(base);
-        // result = (37L * result) + unsafe.getInt(base + 4);
-        // }
-        // return (int) result;
     }
 
     @Override
     public void set(final int row, final int col, final int val) {
-        final long base = address + (row * rowSizeInBytes) + fieldOffset[col];
+        final int idx = (col << 2);
+        final long base = baseAddress + (row * rowSizeInBytes) + bitPos[idx];
         long result = unsafe.getAddress(base);
-        // clear previous bits
-        result &= clearMasks[col];
 
+        // clear previous bits
+        result &= bitPos[idx + 2];
         // set new bits
-        result |= (((long) val) << shifts[col]);
+        result |= (((long) val) << bitPos[idx + 3]);
 
         unsafe.putAddress(base, result);
     }

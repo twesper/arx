@@ -19,7 +19,7 @@ public class MemoryBenchmark {
         }
 
         // Check that everything works
-        MemoryAlignedUnsafeIntArray int0 = new MemoryAlignedUnsafeIntArray(sizes, rows);
+        MemoryAlignedUnsafeIntArray2 int0 = new MemoryAlignedUnsafeIntArray2(sizes, rows);
         MemoryUnsafe3 long0 = new MemoryUnsafe3(sizes, rows);
         MemoryUnsafe unsafe0 = new MemoryUnsafe(sizes, rows);
         for (int row = 0; row < rows; row++) {
@@ -36,13 +36,13 @@ public class MemoryBenchmark {
         System.out.println("Everything works. Starting benchmark!");
 
         // Int benchmark
-        MemoryAlignedUnsafeIntArray int1 = new MemoryAlignedUnsafeIntArray(sizes, rows);
-        MemoryAlignedUnsafeIntArray int2 = new MemoryAlignedUnsafeIntArray(sizes, rows);
+        MemoryAlignedUnsafeIntArray2 int1 = new MemoryAlignedUnsafeIntArray2(sizes, rows);
+        MemoryAlignedUnsafeIntArray2 int2 = new MemoryAlignedUnsafeIntArray2(sizes, rows);
         benchmark1(int1, int2, sizes, rows, data, repeats);
 
         // Long benchmark
-        MemoryUnsafe3 long1 = new MemoryUnsafe3(sizes, rows);
-        MemoryUnsafe3 long2 = new MemoryUnsafe3(sizes, rows);
+        MemoryUnsafe4 long1 = new MemoryUnsafe4(sizes, rows);
+        MemoryUnsafe4 long2 = new MemoryUnsafe4(sizes, rows);
         benchmark2(long1, long2, sizes, rows, data, repeats);
 
         // Unsafe benchmark
@@ -55,7 +55,7 @@ public class MemoryBenchmark {
         return (int) (Math.random() * (Math.pow(2, sizes[col]) - 1d));
     }
 
-    private static void benchmark1(MemoryAlignedUnsafeIntArray m1, MemoryAlignedUnsafeIntArray m2, byte[] sizes, int rows, int[][] data, int repeats) {
+    private static void benchmark1(MemoryAlignedUnsafeIntArray2 m1, MemoryAlignedUnsafeIntArray2 m2, byte[] sizes, int rows, int[][] data, int repeats) {
 
         long start = System.currentTimeMillis();
 
@@ -108,7 +108,7 @@ public class MemoryBenchmark {
         System.out.println(" - Total    : " + (copy + compare + hashcode + write));
     }
 
-    private static void benchmark2(MemoryUnsafe3 m1, MemoryUnsafe3 m2, byte[] sizes, int rows, int[][] data, int repeats) {
+    private static void benchmark2(MemoryUnsafe4 m1, MemoryUnsafe4 m2, byte[] sizes, int rows, int[][] data, int repeats) {
 
         long start = System.currentTimeMillis();
 
