@@ -532,7 +532,7 @@ public class ARXAnonymizer {
     public void setRemoveOutliers(final boolean value) {
         removeOutliers = value;
     }
-
+ 
     /**
      * Sets the string with which suppressed values are to be replaced.
      * 
