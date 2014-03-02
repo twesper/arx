@@ -10,4 +10,5 @@ org.deidentifier.arx.framework.check.transformer
 org.deidentifier.arx.framework.data
 org.deidentifier.arx.framework.lattice
 org.deidentifier.arx.io
+org.deidentifier.arx.masking
 org.deidentifier.arx.metric

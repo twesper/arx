@@ -15,4 +15,5 @@ org.deidentifier.arx.gui.view.impl.explore
 org.deidentifier.arx.gui.view.impl.menu
 org.deidentifier.arx.gui.worker
 org.deidentifier.arx.io
+org.deidentifier.arx.masking
 org.deidentifier.arx.metric
