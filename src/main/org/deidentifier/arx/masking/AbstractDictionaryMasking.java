@@ -8,7 +8,7 @@ import org.deidentifier.arx.DataType;
  *
  * @param <T>
  */
-public abstract class AbstractDictionaryMasking<T extends DataType<?>> extends AbstractMaskingOperator<T> {
-
+public abstract class AbstractDictionaryMasking<T extends DataType<?>> {
+	
 	public abstract String[] mask(String[] input);
 }
