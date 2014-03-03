@@ -27,7 +27,7 @@ import java.util.Date;
  * 
  * @author Prasser, Kohlmayer
  */
-public abstract class DataType<T> implements InterfaceDataParser<T> {
+public abstract class DataType<T> implements IDataParser<T> {
 	
 	/*
 	 * TODO: Implement Boolean, Integer, Float
