@@ -27,13 +27,13 @@ import java.util.Date;
  * 
  * @author Prasser, Kohlmayer
  */
-public abstract class DataType<T> {
+public abstract class DataType<T> implements InterfaceDataParser<T> {
 	
 	/*
 	 * TODO: Implement Boolean, Integer, Float
 	 */
 
-	public static class ARXDate extends DataType<Date> {
+	public static class ARXDate extends	DataType<Date> {
 
         SimpleDateFormat format;
         String           string;
@@ -193,8 +193,10 @@ public abstract class DataType<T> {
     @Override
     public abstract DataType<T> clone();
     
+    @Override
     public abstract String toString(T t);
     
+    @Override
     public abstract T fromString(String s);
 
     public abstract int

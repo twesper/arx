@@ -1,6 +1,18 @@
 package org.deidentifier.arx.masking;
 
-public abstract class AbstractDictionaryMasking {
+import org.deidentifier.arx.InterfaceDataParser;
+
+/**
+ * 
+ * @author Tobias Wesper
+ *
+ * @param <T> The type of data to be masked.
+ */
+public abstract class AbstractDictionaryMasking<T> {
 	
-	public abstract String[] mask(String[] input);
+	public String[] mask(String[] input, InterfaceDataParser<T> parser) {
+		return null;
+	}
+	
+	public abstract T[] maskInternal(T[] input);
 }

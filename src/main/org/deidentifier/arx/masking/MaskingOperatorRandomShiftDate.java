@@ -8,7 +8,7 @@ import java.util.Random;
 /**
  * Example for a non-generic masking operator on instance level
  */
-public class MaskingOperatorRandomShiftDate extends AbstractInstanceMaskingDate{
+public class MaskingOperatorRandomShiftDate extends AbstractInstanceMaskingDate {
 
 	@Override
 	protected Date maskInternal(Date input) {

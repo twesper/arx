@@ -3,7 +3,6 @@ package org.deidentifier.arx.masking;
 import org.deidentifier.arx.DataType;
 import org.deidentifier.arx.DataType.ARXDecimal;
 
-
 public abstract class AbstractInstanceMaskingDecimal extends AbstractInstanceMasking<ARXDecimal>{
 
 	@Override
