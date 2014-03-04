@@ -6,12 +6,12 @@ package org.deidentifier.arx.masking;
  * @author Tobias Wesper
  *
  */
-public class ConstantShiftDoubleInstanceMasker extends
+public class ConstantShiftDoubleInstMasker extends
 		AbstractInstanceMasker<Double> {
 
 	private double shiftDistance;
 	
-	public ConstantShiftDoubleInstanceMasker(double shiftDistance) {
+	public ConstantShiftDoubleInstMasker(double shiftDistance) {
 		this.shiftDistance = shiftDistance;
 	}
 	

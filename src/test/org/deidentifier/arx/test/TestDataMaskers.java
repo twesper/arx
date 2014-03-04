@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 
 import org.deidentifier.arx.DataType;
-import org.deidentifier.arx.masking.ConstantShiftDoubleDictionaryMasker;
+import org.deidentifier.arx.masking.ConstantShiftDoubleDictMasker;
 import org.junit.Test;
 
 public class TestDataMaskers {
@@ -32,15 +32,15 @@ public class TestDataMaskers {
 			correctArray[i] = Double.toString(correctResults[i]);
 		
 		// Create output data using masker class:
-		ConstantShiftDoubleDictionaryMasker dataMasker =
-				new ConstantShiftDoubleDictionaryMasker(shift);
+		ConstantShiftDoubleDictMasker dataMasker =
+				new ConstantShiftDoubleDictMasker(shift);
 		String[] outputArray = dataMasker.maskStrings(inputArray, DataType.DECIMAL);
 		
 
 		assertTrue(Arrays.deepEquals(correctArray, outputArray));
 		
 		
-		// Modify shiftDistance and test anew:
+		// Modify shift and test anew:
 		shift = -2.5;
 		dataMasker.setShiftDistance(shift);
 		
