@@ -1,6 +1,8 @@
 package org.deidentifier.arx.masking;
 
 import org.deidentifier.arx.IDataParser;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -40,6 +42,10 @@ public abstract class AbstractDictionaryMasker<T> {
 		}
 		
 		return output;
+	}
+	
+	public void maskArray(T[] input) {
+		maskList(Arrays.asList(input));
 	}
 	
 	/**

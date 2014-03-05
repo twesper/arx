@@ -5,29 +5,24 @@ import java.util.List;
 public class ConstantShiftDoubleDictMasker extends
 		AbstractDictionaryMasker<Double> {
 
-	private double shiftDistance;
+	protected final ConstantShiftDoubleInstMasker instanceMasker;
 	
 	public ConstantShiftDoubleDictMasker(double shiftDistance) {
-		this.shiftDistance = shiftDistance;
+		instanceMasker = new ConstantShiftDoubleInstMasker(shiftDistance);
 	}
 	
 	@Override
 	public void maskList(List<Double> data) {
-		
-		ConstantShiftDoubleInstMasker instanceMasker =
-				new ConstantShiftDoubleInstMasker(shiftDistance);
-		
 		for (int i = 0; i < data.size(); ++i)
 			data.set(i, instanceMasker.mask(data.get(i)));
-		
 	}
 
 	public double getShiftDistance() {
-		return shiftDistance;
+		return instanceMasker.getShiftDistance();
 	}
 
 	public void setShiftDistance(double shiftDistance) {
-		this.shiftDistance = shiftDistance;
+		instanceMasker.setShiftDistance(shiftDistance);
 	}
 
 }
