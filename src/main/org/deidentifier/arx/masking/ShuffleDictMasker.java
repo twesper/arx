@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Masks a dictionary of data by shuffling its values around.
  * 
- * @author Tobias Wesper
+ * @author Wesper
  *
  * @param <T> The type of the data to be masked.
  */

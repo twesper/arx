@@ -3,7 +3,7 @@ package org.deidentifier.arx.masking;
 /**
  * Masks an instance of a Double by adding a configurable constant value.
  * 
- * @author Tobias Wesper
+ * @author Wesper
  *
  */
 public class ConstantShiftDecimalInstMasker extends

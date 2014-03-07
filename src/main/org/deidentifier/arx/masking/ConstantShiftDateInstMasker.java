@@ -7,7 +7,7 @@ import org.joda.time.Period;
 /**
  * Masks a Date instance by adding a specified number of time units.
  * 
- * @author Tobias Wesper
+ * @author Wesper
  *
  */
 public class ConstantShiftDateInstMasker extends AbstractInstanceMasker<Date> {

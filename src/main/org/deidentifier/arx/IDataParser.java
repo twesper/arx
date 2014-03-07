@@ -5,7 +5,7 @@ package org.deidentifier.arx;
  * The implementing class should ensure that the mapping from text to data is sound and
  * converting back and forth does not change the data.
  * 
- * @author Tobias Wesper
+ * @author Wesper
  *
  * @param <T> The type of the parsed data.
  */

@@ -10,7 +10,7 @@ import java.util.Vector;
  * Performs data masking on a whole dictionary of Strings representing data of type T.
  * The exact masking implementation must be provided in the {@code maskInternal} method.
  * 
- * @author Tobias Wesper
+ * @author Wesper
  *
  * @param <T> The type of data to be masked.
  */

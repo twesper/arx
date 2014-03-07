@@ -5,7 +5,7 @@ import org.deidentifier.arx.IDataParser;
 /**
  * Performs data masking on 
  * 
- * @author Tobias Wesper
+ * @author Wesper
  *
  * @param <T> The type of data to be masked.
  */
