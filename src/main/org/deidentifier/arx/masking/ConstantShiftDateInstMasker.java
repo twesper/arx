@@ -1,7 +1,8 @@
 package org.deidentifier.arx.masking;
 
 import java.util.Date;
-import java.util.GregorianCalendar;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 /**
  * Masks a Date instance by adding a specified number of time units.
@@ -11,8 +12,8 @@ import java.util.GregorianCalendar;
  */
 public class ConstantShiftDateInstMasker extends AbstractInstanceMasker<Date> {
 
-	/** The amount of time the input date shall be shifted, in milliseconds. */
-	protected long shiftDistance;
+	/** The amount of time the input date shall be shifted. */
+	private Period shiftPeriod;
 	
 	/**
 	 * Creates a constant shift masker that shifts the input date by the specified amount of
@@ -20,53 +21,46 @@ public class ConstantShiftDateInstMasker extends AbstractInstanceMasker<Date> {
 	 * 
 	 * @param shiftDistance The shift in milliseconds.
 	 */
-	public ConstantShiftDateInstMasker(long shiftDistance) {
-		this.shiftDistance = shiftDistance;
+	public ConstantShiftDateInstMasker(int shiftDistance) {
+		setShiftDistance(shiftDistance);
 	}
 	
 	/**
-	 * Creates a constant shift masker that shifts the input by {@code shiftDistance} units of
-	 * time. The time unit is specified by the second argument as one of the static fields of
-	 * {@code java.util.Calendar}, e.g. {@code DAY_OF_MONTH}, {@code MONTH} or {@code YEAR}.
-	 *     
-	 * @param shiftDistance The amount of units of time that the input date will be shifted. 
-	 * @param timeUnit One of the unit field numbers specified by {@link java.util.Calendar}.
+	 * Creates a constant shift masker that shifts the input by the given period of time.
+	 * 
+	 * @param shiftPeriod The amount of time the dates are shifted.
 	 */
-	public ConstantShiftDateInstMasker(int shiftDistance, int timeUnit) {
-		setShiftDistance(shiftDistance, timeUnit);
+	public ConstantShiftDateInstMasker(Period shiftPeriod) {
+		setShiftPeriod(shiftPeriod);
 	}
 	
 	@Override
-	protected Date mask(Date input) {
-		return new Date(input.getTime() + shiftDistance);
+	public Date mask(Date input) {
+		DateTime date = new DateTime(input);
+		DateTime shiftedDate = date.plus(shiftPeriod);
+		return shiftedDate.toDate();
 	}
 
-	public long getShiftDistance() {
-		return shiftDistance;
+	public int getShiftDistance() {
+		return shiftPeriod.getMillis();
 	}
 
-	public void setShiftDistance(long shiftDistance) {
-		this.shiftDistance = shiftDistance;
+	public void setShiftDistance(int shiftDistance) {
+		shiftPeriod = new Period(shiftDistance);
 	}
-	
-	
+
+
+	public Period getShiftPeriod() {
+		return shiftPeriod;
+	}
+
 	/**
 	 * Sets the time interval by which the masker will shift dates.
-	 * <p>
-	 * Note: {@link java.util.Calendar} unit fields are used instead of the
-	 * {@link java.util.concurrent.TimeUnit} enum. Even though an enum would be strongly
-	 * prefered, {@code TimeUnit} doesn't encompass time intervals greater than a day and
-	 * and its conversion methods cannot take DST, leap years, etc. into account.  
 	 * 
-	 * @param shiftDistance The amount of time units of time the dates will be shifted.
-	 * @param timeUnit A unit field number as specified by {@link java.util.Calendar}.
+	 * @param shiftPeriod The time period to be added to dates.
 	 */
-	public void setShiftDistance(int shiftDistance, int timeUnit) {
-		GregorianCalendar calendar = new GregorianCalendar();
-		calendar.setTimeInMillis(0);
-		calendar.add(timeUnit, shiftDistance);
-		
-		this.shiftDistance = calendar.getTimeInMillis();
+	public void setShiftPeriod(Period shiftPeriod) {
+		this.shiftPeriod = shiftPeriod;
 	}
 
 }

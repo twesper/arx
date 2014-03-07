@@ -1,12 +1,11 @@
 package org.deidentifier.arx.test;
 
 import java.util.Arrays;
-import java.util.Calendar;
-
 import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.DataType;
 import org.deidentifier.arx.masking.ConstantShiftDateInstMasker;
 import org.deidentifier.arx.masking.ConstantShiftDoubleInstMasker;
+import org.joda.time.Period;
 import org.junit.Test;
 
 public class TestDataMaskers extends AbstractTest {
@@ -36,7 +35,7 @@ public class TestDataMaskers extends AbstractTest {
 		DataHandle input = provider.getInputConstantShiftDate();
 		DataHandle target = provider.getOutputConstantShiftDate();
 		
-		ConstantShiftDateInstMasker masker = new ConstantShiftDateInstMasker(3, Calendar.DAY_OF_MONTH);
+		ConstantShiftDateInstMasker masker = new ConstantShiftDateInstMasker(Period.days(3));
 		DataHandle output = provider.getOutputGeneric(input, masker, DataType.DATE);
 		
 		super.printArray(iteratorToArray(target.iterator()));

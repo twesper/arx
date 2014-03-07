@@ -25,11 +25,11 @@ public abstract class AbstractDictionaryMasker<T> {
 	 */
 	public String[] maskStrings(String[] input, IDataParser<T> parser) {
 		
-		// Convert input strings to data and store in a vector.
-		Vector<T> data = new Vector<T>(input.length);
-		for (int i = 0; i < input.length; ++i) {
-			data.add(parser.fromString(input[i]));
-		}
+		// Convert input strings to data and store in a Vector.
+		List<String> inputList = Arrays.asList(input);
+		Vector<T> data = new Vector<T>();
+		for (String item : inputList)
+			data.add(parser.fromString(item));
 		
 		// Perform the masking.
 		maskList(data);
@@ -37,14 +37,12 @@ public abstract class AbstractDictionaryMasker<T> {
 		// Convert back to String array.
 		String[] output = new String[input.length];
 		for (int i = 0; i < data.size(); ++i)
-		{
 			output[i] = parser.toString(data.elementAt(i));
-		}
 		
 		return output;
 	}
 	
-	public void maskArray(T[] input) {
+	public void mask(T[] input) {
 		maskList(Arrays.asList(input));
 	}
 	

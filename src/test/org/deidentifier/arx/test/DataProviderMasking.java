@@ -85,7 +85,7 @@ public class DataProviderMasking {
         data.add("02.07.1980");
         data.add("03.07.1890");
         data.add("04.07.2020");
-        //data.add("01.01.0000"); // There is no year 0 in the Gregorian calendar: http://en.wikipedia.org/wiki/0_%28year%29
+        //data.add("01.01.0000"); // Bad input: There is no year 0 in the Gregorian calendar: http://en.wikipedia.org/wiki/0_%28year%29
         data.add("01.01.0001");
         data.add("01.01.1970");
         

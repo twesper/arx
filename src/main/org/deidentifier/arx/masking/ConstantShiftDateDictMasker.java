@@ -3,16 +3,18 @@ package org.deidentifier.arx.masking;
 import java.util.List;
 import java.util.Date;
 
+import org.joda.time.Period;
+
 public class ConstantShiftDateDictMasker extends AbstractDictionaryMasker<Date> {
 
 	protected final ConstantShiftDateInstMasker instanceMasker;
 	
-	public ConstantShiftDateDictMasker(long shiftDistance) {
+	public ConstantShiftDateDictMasker(int shiftDistance) {
 		instanceMasker = new ConstantShiftDateInstMasker(shiftDistance);
 	}
 	
-	public ConstantShiftDateDictMasker(int shiftDistance, int timeUnit) {
-		instanceMasker = new ConstantShiftDateInstMasker(shiftDistance, timeUnit);
+	public ConstantShiftDateDictMasker(Period shiftPeriod) {
+		instanceMasker = new ConstantShiftDateInstMasker(shiftPeriod);
 	}
 	
 	@Override
@@ -25,12 +27,12 @@ public class ConstantShiftDateDictMasker extends AbstractDictionaryMasker<Date> 
 		return instanceMasker.getShiftDistance();
 	}
 	
-	public void setShiftDistance(long shiftDistance) {
+	public void setShiftDistance(int shiftDistance) {
 		instanceMasker.setShiftDistance(shiftDistance);
 	}
 	
-	public void setShiftDistance(int shiftDistance, int timeUnit) {
-		instanceMasker.setShiftDistance(shiftDistance, timeUnit);
+	public void setShiftDistance(Period shiftPeriod) {
+		instanceMasker.setShiftPeriod(shiftPeriod);
 	}
 
 }

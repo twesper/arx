@@ -15,5 +15,5 @@ public abstract class AbstractInstanceMasker<T> {
 		return parser.toString(mask(parser.fromString(input)));
 	}
 	
-	protected abstract T mask(T input);
+	public abstract T mask(T input);
 }
