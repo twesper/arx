@@ -1,10 +1,12 @@
 package org.deidentifier.arx.test;
 
 import java.util.Arrays;
+
 import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.DataType;
 import org.deidentifier.arx.masking.ConstantShiftDateInstMasker;
 import org.deidentifier.arx.masking.ConstantShiftDecimalInstMasker;
+import org.deidentifier.arx.masking.ShuffleDictMasker.ShuffleStringDictMasker;
 import org.joda.time.Period;
 import org.junit.Test;
 
@@ -38,10 +40,24 @@ public class TestDataMaskers extends AbstractTest {
 		ConstantShiftDateInstMasker masker = new ConstantShiftDateInstMasker(Period.days(3));
 		DataHandle output = provider.getOutputGeneric(input, masker, DataType.DATE);
 		
-		super.printArray(iteratorToArray(target.iterator()));
-		super.printArray(iteratorToArray(output.iterator()));
+		//super.printArray(iteratorToArray(target.iterator()));
+		//super.printArray(iteratorToArray(output.iterator()));
 
 		assertTrue(Arrays.deepEquals(iteratorToArray(target.iterator()), iteratorToArray(output.iterator())));
+	}
+	
+	@Test
+	public void testShuffleDictionary() {
+		DataHandle input = provider.getInputShuffleDictionary();
+		
+		//super.printArray(iteratorToArray(input.iterator()));
+		
+		String[] dict = input.getDistinctValues(0);
+		ShuffleStringDictMasker masker = new ShuffleStringDictMasker();
+		masker.mask(dict);
+		
+		//System.out.println();
+		//System.out.print(Arrays.toString(dict));
 	}
 
 }

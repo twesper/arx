@@ -22,6 +22,7 @@ import org.deidentifier.arx.Data;
 import org.deidentifier.arx.Data.DefaultData;
 import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.DataType;
+import org.deidentifier.arx.framework.data.Dictionary;
 import org.deidentifier.arx.masking.AbstractInstanceMasker;
 
 /**
@@ -106,6 +107,18 @@ public class DataProviderMasking {
         
         data.getDefinition().setDataType("values", DataType.DATE("dd.MM.yyyy"));
         return data.getHandle();
+	}
+	
+	public DataHandle getInputShuffleDictionary() {
+		DefaultData data = Data.create();
+		data.add("values");
+		
+		int numberOfEntries = 20; 
+		for (int i = 0; i < numberOfEntries; ++i)
+			data.add(Integer.toString(i + 1));
+		
+		data.getDefinition().setDataType("values",  DataType.STRING);
+		return data.getHandle();
 	}
 	
 }
