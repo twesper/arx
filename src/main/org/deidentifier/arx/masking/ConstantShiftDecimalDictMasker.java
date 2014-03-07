@@ -2,13 +2,13 @@ package org.deidentifier.arx.masking;
 
 import java.util.List;
 
-public class ConstantShiftDoubleDictMasker extends
+public class ConstantShiftDecimalDictMasker extends
 		AbstractDictionaryMasker<Double> {
 
-	protected final ConstantShiftDoubleInstMasker instanceMasker;
+	protected final ConstantShiftDecimalInstMasker instanceMasker;
 	
-	public ConstantShiftDoubleDictMasker(double shiftDistance) {
-		instanceMasker = new ConstantShiftDoubleInstMasker(shiftDistance);
+	public ConstantShiftDecimalDictMasker(double shiftDistance) {
+		instanceMasker = new ConstantShiftDecimalInstMasker(shiftDistance);
 	}
 	
 	@Override
