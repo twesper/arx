@@ -2,16 +2,16 @@ package org.deidentifier.arx.masking;
 
 import org.apache.commons.math3.distribution.RealDistribution;
 
-public class RandomShiftDecimalInstMasker extends AbstractInstanceMasker<Double> {
+public class RandomShiftDecimalMasker extends AbstractInstBasedDictMasker<Double> {
 
 	private RealDistribution	distribution;
 	private double				shiftConstant = 0.0d;
 	
-	public RandomShiftDecimalInstMasker(RealDistribution distribution) {
+	public RandomShiftDecimalMasker(RealDistribution distribution) {
 		this(distribution, 0.0d);
 	}
 	
-	public RandomShiftDecimalInstMasker(RealDistribution distribution, double shiftConstant) {
+	public RandomShiftDecimalMasker(RealDistribution distribution, double shiftConstant) {
 		this.distribution = distribution;
 		this.shiftConstant = shiftConstant;
 	}

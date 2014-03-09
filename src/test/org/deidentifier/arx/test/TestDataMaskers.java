@@ -4,8 +4,8 @@ import java.util.Arrays;
 
 import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.DataType;
-import org.deidentifier.arx.masking.ConstantShiftDateInstMasker;
-import org.deidentifier.arx.masking.ConstantShiftDecimalInstMasker;
+import org.deidentifier.arx.masking.ConstantShiftDateMasker;
+import org.deidentifier.arx.masking.ConstantShiftDecimalMasker;
 import org.deidentifier.arx.masking.ShuffleDictMasker.ShuffleStringDictMasker;
 import org.joda.time.Period;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class TestDataMaskers extends AbstractTest {
 		DataHandle input = provider.getInputConstantShiftDecimal();
 		DataHandle target = provider.getOutputConstantShiftDecimal(input, shift);
 		
-		ConstantShiftDecimalInstMasker masker = new ConstantShiftDecimalInstMasker(shift);
+		ConstantShiftDecimalMasker masker = new ConstantShiftDecimalMasker(shift);
 		DataHandle output = provider.getOutputGeneric(input, masker, DataType.DECIMAL);
 
 		assertTrue(Arrays.deepEquals(iteratorToArray(target.iterator()), iteratorToArray(output.iterator())));
@@ -37,7 +37,7 @@ public class TestDataMaskers extends AbstractTest {
 		DataHandle input = provider.getInputConstantShiftDate();
 		DataHandle target = provider.getOutputConstantShiftDate();
 		
-		ConstantShiftDateInstMasker masker = new ConstantShiftDateInstMasker(Period.days(3));
+		ConstantShiftDateMasker masker = new ConstantShiftDateMasker(Period.days(3));
 		DataHandle output = provider.getOutputGeneric(input, masker, DataType.DATE);
 		
 		//super.printArray(iteratorToArray(target.iterator()));

@@ -7,48 +7,52 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- * Performs data masking on a whole dictionary of Strings representing data of type T.
- * The exact masking implementation must be provided in the {@code maskInternal} method.
+ * Performs data masking on whole dictionaries of data of type T.
+ * The exact masking implementation must be provided in the {@code maskList} method.
  * 
  * @author Wesper
  *
  * @param <T> The type of data to be masked.
  */
-public abstract class AbstractDictionaryMasker<T> {
+public abstract class AbstractDictionaryMasker<T> implements IDictionaryMasker<T> {
 	
 	/**
-	 * Converts the input String array to data of type T, performs the masking and returns the
-	 * results in a new array.
-	 * @param input The array containing the dictionary.
+	 * Converts the input String array to data of type T, performs the masking and writes the
+	 * results into the input array.
+	 * 
+	 * @param dataStrings The array of strings containing the dictionary.
 	 * @param parser The object used to parse the data - usually of the DataType<T> class.
-	 * @return An array of masked data in String representation.
 	 */
-	public String[] maskStrings(String[] input, IDataParser<T> parser) {
+	public void maskStrings(String[] dataStrings, IDataParser<T> parser) {
 		
-		// Convert input strings to data and store in a Vector.
-		List<String> inputList = Arrays.asList(input);
-		Vector<T> data = new Vector<T>();
-		for (String item : inputList)
-			data.add(parser.fromString(item));
+		// Convert input strings to T and store in a Vector.
+		List<String> stringList = Arrays.asList(dataStrings);
+		Vector<T> dataVector = new Vector<T>();
+		for (String item : stringList)
+			dataVector.add(parser.fromString(item));
 		
 		// Perform the masking.
-		maskList(data);
+		maskList(dataVector);
 		
-		// Convert back to String array.
-		String[] output = new String[input.length];
-		for (int i = 0; i < data.size(); ++i)
-			output[i] = parser.toString(data.elementAt(i));
-		
-		return output;
+		// Write back to input array.
+		for (int i = 0; i < dataVector.size(); ++i)
+			dataStrings[i] = parser.toString(dataVector.elementAt(i));
 	}
 	
+	/**
+	 * Masks the given array of data elements.
+	 * 
+	 * @param input The input array containing the dictionary of data to be masked.
+	 */
 	public void mask(T[] input) {
 		maskList(Arrays.asList(input));
 	}
 	
 	/**
-	 * The exact implementation of the masking should be specified here.
-	 * @param data The list on which the masking is performed.
+	 * Masks the given list of data elements.
+	 * 
+	 * @param data The list containing the dictionary on which the masking is performed.
 	 */
+	@Override
 	public abstract void maskList(List<T> data);
 }

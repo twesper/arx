@@ -10,7 +10,7 @@ import org.joda.time.Period;
  * @author Wesper
  *
  */
-public class ConstantShiftDateInstMasker extends AbstractInstanceMasker<Date> {
+public class ConstantShiftDateMasker extends AbstractInstBasedDictMasker<Date> {
 
 	/** The amount of time the input date shall be shifted. */
 	private Period shiftPeriod;
@@ -21,7 +21,7 @@ public class ConstantShiftDateInstMasker extends AbstractInstanceMasker<Date> {
 	 * 
 	 * @param shiftDistance The shift in milliseconds.
 	 */
-	public ConstantShiftDateInstMasker(int shiftDistance) {
+	public ConstantShiftDateMasker(int shiftDistance) {
 		setShiftDistance(shiftDistance);
 	}
 	
@@ -30,10 +30,16 @@ public class ConstantShiftDateInstMasker extends AbstractInstanceMasker<Date> {
 	 * 
 	 * @param shiftPeriod The amount of time the dates are shifted.
 	 */
-	public ConstantShiftDateInstMasker(Period shiftPeriod) {
+	public ConstantShiftDateMasker(Period shiftPeriod) {
 		setShiftPeriod(shiftPeriod);
 	}
 	
+	/**
+	 * Shifts the given date by a constant time period.
+	 * 
+	 * @param input The date to be shifted.
+	 * @return The shifted date.
+	 */
 	@Override
 	public Date mask(Date input) {
 		DateTime date = new DateTime(input);

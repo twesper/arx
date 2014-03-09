@@ -22,8 +22,7 @@ import org.deidentifier.arx.Data;
 import org.deidentifier.arx.Data.DefaultData;
 import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.DataType;
-import org.deidentifier.arx.framework.data.Dictionary;
-import org.deidentifier.arx.masking.AbstractInstanceMasker;
+import org.deidentifier.arx.masking.IInstanceMasker;
 
 /**
  * Provides data for test cases
@@ -62,15 +61,14 @@ public class DataProviderMasking {
         return data.getHandle();
 	}
 
-	public <T> DataHandle getOutputGeneric (DataHandle input, AbstractInstanceMasker<T> masker, DataType<T> type) {
+	public <T> DataHandle getOutputGeneric (DataHandle input, IInstanceMasker<T> masker,
+											DataType<T> type) {
 		
 		DefaultData data = Data.create();
         data.add("values");
         
         for (int row=0; row<input.getNumRows(); row++){
-        	// TODO: Replace with T mask(T)
-        	//data.add(type.toString(masker.mask(type.fromString(input.getValue(row, 0)))));
-        	data.add(masker.maskString(input.getValue(row, 0), type));
+        	data.add(type.toString(masker.mask(type.fromString(input.getValue(row, 0)))));
         }
         
         data.getDefinition().setDataType("values", type);
