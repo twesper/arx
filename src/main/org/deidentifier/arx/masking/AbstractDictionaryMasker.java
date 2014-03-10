@@ -44,7 +44,7 @@ public abstract class AbstractDictionaryMasker<T> implements IDictionaryMasker<T
 	 * 
 	 * @param input The input array containing the dictionary of data to be masked.
 	 */
-	public void mask(T[] input) {
+	public void maskArray(T[] input) {
 		maskList(Arrays.asList(input));
 	}
 	

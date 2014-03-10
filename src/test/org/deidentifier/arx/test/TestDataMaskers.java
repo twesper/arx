@@ -54,7 +54,7 @@ public class TestDataMaskers extends AbstractTest {
 		
 		String[] dict = input.getDistinctValues(0);
 		ShuffleStringDictMasker masker = new ShuffleStringDictMasker();
-		masker.mask(dict);
+		masker.maskArray(dict);
 		
 		//System.out.println();
 		//System.out.print(Arrays.toString(dict));

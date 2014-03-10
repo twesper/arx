@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.apache.commons.math3.distribution.IntegerDistribution;
 import org.joda.time.DateTime;
+import org.joda.time.Days;
 import org.joda.time.ReadablePeriod;
 
 /**
@@ -25,21 +26,22 @@ import org.joda.time.ReadablePeriod;
  *
  */
 public class RandomShiftDateMasker extends AbstractInstBasedDictMasker<Date> {
-
-	/**
-	 * The probability distribution from which 
-	 */
+	
 	private IntegerDistribution	distribution;
 	private int					shiftConstant = 0;
-	private ReadablePeriod		basePeriod;
+	private ReadablePeriod		basePeriod = Days.ONE;
 	
-	public RandomShiftDateMasker(	IntegerDistribution distribution,
-										ReadablePeriod basePeriod ) {
+	public RandomShiftDateMasker(IntegerDistribution distribution) {
+		this(distribution, Days.ONE);
+	}
+	
+	public RandomShiftDateMasker(IntegerDistribution distribution,
+									ReadablePeriod basePeriod) {
 		this(distribution, 0, basePeriod);
 	}
 	
-	public RandomShiftDateMasker(	IntegerDistribution distribution,
-										int shiftConstant, ReadablePeriod basePeriod ) {
+	public RandomShiftDateMasker(IntegerDistribution distribution, int shiftConstant,
+									ReadablePeriod basePeriod) {
 		this.distribution	= distribution;
 		this.shiftConstant	= shiftConstant;
 		this.basePeriod		= basePeriod;
@@ -55,6 +57,7 @@ public class RandomShiftDateMasker extends AbstractInstBasedDictMasker<Date> {
 		DateTime shiftedDate = inputDate.plus(shiftPeriod);
 		
 		return shiftedDate.toDate();
+		
 	}
 
 }

@@ -1,8 +1,10 @@
 package org.deidentifier.arx.masking;
 
 import java.util.Date;
+
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.joda.time.ReadablePeriod;
 
 /**
  * Masks a Date instance by adding a specified number of time units.
@@ -13,7 +15,7 @@ import org.joda.time.Period;
 public class ConstantShiftDateMasker extends AbstractInstBasedDictMasker<Date> {
 
 	/** The amount of time the input date shall be shifted. */
-	private Period shiftPeriod;
+	private ReadablePeriod shiftPeriod;
 	
 	/**
 	 * Creates a constant shift masker that shifts the input date by the specified amount of
@@ -30,7 +32,7 @@ public class ConstantShiftDateMasker extends AbstractInstBasedDictMasker<Date> {
 	 * 
 	 * @param shiftPeriod The amount of time the dates are shifted.
 	 */
-	public ConstantShiftDateMasker(Period shiftPeriod) {
+	public ConstantShiftDateMasker(ReadablePeriod shiftPeriod) {
 		setShiftPeriod(shiftPeriod);
 	}
 	
@@ -48,7 +50,7 @@ public class ConstantShiftDateMasker extends AbstractInstBasedDictMasker<Date> {
 	}
 
 	public int getShiftDistance() {
-		return shiftPeriod.getMillis();
+		return shiftPeriod.toPeriod().getMillis();
 	}
 
 	public void setShiftDistance(int shiftDistance) {
@@ -56,7 +58,7 @@ public class ConstantShiftDateMasker extends AbstractInstBasedDictMasker<Date> {
 	}
 
 
-	public Period getShiftPeriod() {
+	public ReadablePeriod getShiftPeriod() {
 		return shiftPeriod;
 	}
 
@@ -65,7 +67,7 @@ public class ConstantShiftDateMasker extends AbstractInstBasedDictMasker<Date> {
 	 * 
 	 * @param shiftPeriod The time period to be added to dates.
 	 */
-	public void setShiftPeriod(Period shiftPeriod) {
+	public void setShiftPeriod(ReadablePeriod shiftPeriod) {
 		this.shiftPeriod = shiftPeriod;
 	}
 

@@ -16,7 +16,7 @@ import org.deidentifier.arx.IDataParser;
  */
 public abstract class AbstractInstBasedDictMasker<T>
 					extends		AbstractDictionaryMasker<T>
-					implements 	IInstanceMasker<T> {
+					implements 	IInstanceMasker<T>, IDictionaryMasker<T> {
 	
 	/**
 	 * Masks the given dictionary one data instance at a time by calling the {@code mask}
