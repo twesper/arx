@@ -6,7 +6,7 @@ import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.DataType;
 import org.deidentifier.arx.masking.ConstantShiftDateMasker;
 import org.deidentifier.arx.masking.ConstantShiftDecimalMasker;
-import org.deidentifier.arx.masking.ShuffleDictMasker.ShuffleStringDictMasker;
+import org.deidentifier.arx.masking.ShuffleMasker.ShuffleStringMasker;
 import org.joda.time.Period;
 import org.junit.Test;
 
@@ -53,7 +53,7 @@ public class TestDataMaskers extends AbstractTest {
 		//super.printArray(iteratorToArray(input.iterator()));
 		
 		String[] dict = input.getDistinctValues(0);
-		ShuffleStringDictMasker masker = new ShuffleStringDictMasker();
+		ShuffleStringMasker masker = new ShuffleStringMasker();
 		masker.maskArray(dict);
 		
 		//System.out.println();

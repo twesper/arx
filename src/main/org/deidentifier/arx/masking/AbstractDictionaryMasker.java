@@ -21,7 +21,8 @@ public abstract class AbstractDictionaryMasker<T> implements IDictionaryMasker<T
 	 * results into the input array.
 	 * 
 	 * @param dataStrings The array of strings containing the dictionary.
-	 * @param parser The object used to parse the data - usually of the DataType<T> class.
+	 * @param parser The object used to parse the data - usually a {@link
+	 * org.deidentifier.arx.DataType DataType}.
 	 */
 	public void maskStrings(String[] dataStrings, IDataParser<T> parser) {
 		
@@ -48,11 +49,4 @@ public abstract class AbstractDictionaryMasker<T> implements IDictionaryMasker<T
 		maskList(Arrays.asList(input));
 	}
 	
-	/**
-	 * Masks the given list of data elements.
-	 * 
-	 * @param data The list containing the dictionary on which the masking is performed.
-	 */
-	@Override
-	public abstract void maskList(List<T> data);
 }

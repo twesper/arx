@@ -7,7 +7,7 @@ import org.joda.time.Period;
 import org.joda.time.ReadablePeriod;
 
 /**
- * Masks a Date instance by adding a specified number of time units.
+ * Masks date instances by adding a constant time period.
  * 
  * @author Wesper
  *
@@ -56,7 +56,6 @@ public class ConstantShiftDateMasker extends AbstractInstBasedDictMasker<Date> {
 	public void setShiftDistance(int shiftDistance) {
 		shiftPeriod = new Period(shiftDistance);
 	}
-
 
 	public ReadablePeriod getShiftPeriod() {
 		return shiftPeriod;

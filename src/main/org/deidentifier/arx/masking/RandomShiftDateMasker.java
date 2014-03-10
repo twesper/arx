@@ -12,7 +12,7 @@ import org.joda.time.ReadablePeriod;
  * <p>
  * The shift distance is calculated by sampling an integer from the distribution and multiplying
  * it with the supplied base period. Optionally, a constant shift is applied sampled integer.
- * (This makes it easy to shift e.g. the range of a binomial distribution around P(X = 0).)
+ * (This makes it easy to shift e.g. the center of a binomial distribution around P(X = 0).)
  * <p>
  * Example:<pre>
  * // A masker that shifts dates randomly in a range from -3 to +3 days:

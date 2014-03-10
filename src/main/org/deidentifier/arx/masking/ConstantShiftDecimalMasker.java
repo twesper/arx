@@ -1,7 +1,7 @@
 package org.deidentifier.arx.masking;
 
 /**
- * Masks an instance of a Double by adding a configurable constant value.
+ * Masks instances of decimal data by adding a constant value.
  * 
  * @author Wesper
  *

@@ -30,7 +30,7 @@ import org.joda.time.Days;
  * @author Wesper
  *
  */
-public class GenerateRandomDateMasker extends AbstractGenerateMasker<Date> {
+public class GenerateRandomDateMasker extends AbstractReplaceInstMasker<Date> {
 
 	private IntegerDistribution distribution;
 	private int					shiftConstant = 0;
@@ -61,7 +61,7 @@ public class GenerateRandomDateMasker extends AbstractGenerateMasker<Date> {
 	}
 	
 	@Override
-	public Date generate() {
+	public Date createReplacement() {
 		int randomShift = distribution.sample() + shiftConstant;
 		ReadablePeriod randomPeriod = basePeriod.toPeriod().multipliedBy(randomShift);
 		ReadableDateTime generatedDate = baseDate.toDateTime().plus(randomPeriod);

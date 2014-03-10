@@ -11,7 +11,7 @@ import java.util.List;
 public interface IDictionaryMasker<T> {
 	
 	/**
-	 * Masks the data in the input list. The original data is overwritten.
+	 * Masks the dictionary of data in the input list. The original data is overwritten.
 	 * 
 	 * @param data The list of data on which the masking is performed.
 	 */
