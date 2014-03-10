@@ -45,6 +45,7 @@
                 <path path="lib/commons/commons-math3-3.1.1.jar"/>
             	<path path="lib/jama/Jama-1.0.2.jar"/>
             	<path path="lib/objectselector/objectselector-0.1-lib.jar"/>
+            	<path path="lib/joda-time/joda-time-2.3.jar"/>
                 <path path="src/main" />
             </classpath>
 
@@ -63,6 +64,7 @@
 				<path path="lib/commons/commons-math3-3.1.1.jar"/>
             	<path path="lib/jama/Jama-1.0.2.jar"/>
             	<path path="lib/objectselector/objectselector-0.1-lib.jar"/>
+            	<path path="lib/joda-time/joda-time-2.3.jar"/>
                 <path path="src/main" />
             </classpath>
 
@@ -92,6 +94,7 @@
             	<path path="lib/jama/Jama-1.0.2.jar"/>
                 <path path="lib/swt/swt-4.2.1-gtk-linux-x86.jar" />
 				<path path="lib/objectselector/objectselector-0.1-lib.jar"/>
+            	<path path="lib/joda-time/joda-time-2.3.jar"/>
                 <path path="src/main" />
             </classpath>
 
@@ -116,6 +119,7 @@
                 <path path="lib/commons/commons-math3-3.1.1.jar"/>
             	<path path="lib/jama/Jama-1.0.2.jar"/>
             	<path path="lib/objectselector/objectselector-0.1-lib.jar"/>
+            	<path path="lib/joda-time/joda-time-2.3.jar"/>
                 <path path="src/main" />
             </classpath>
         </javac>

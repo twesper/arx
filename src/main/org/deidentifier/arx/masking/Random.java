@@ -5,11 +5,12 @@ import org.apache.commons.math3.random.Well44497b;
 
 /**
  * Provides quick access to an alternative random number generator used instead of the standard
- * RNG {@code java.util.Random}, because of its limitations. A superior RNG from the Apache 
+ * RNG {@link java.util.Random}, because of its limitations. A superior RNG from the Apache 
  * Commons Math library is used in its place.
  * <p>
- * The class inherits from {@code org.apache.commons.math3.random.RandomAdaptor}, a wrapper for
- * {@code RandomGenerator}s so they can be used instead of a {@code java.util.Random}. 
+ * The class inherits from {@link org.apache.commons.math3.random.RandomAdaptor RandomAdaptor},
+ * a wrapper for {@link org.apache.commons.math3.random.RandomGenerator RandomGenerator}s so
+ * they can be used instead of a {@link java.util.Random}. 
  * 
  * @author Wesper
  */
@@ -18,7 +19,7 @@ public final class Random extends RandomAdaptor {
 	private static final long serialVersionUID = -8827826017115532703L;
 
 	/**
-	 * Creates a new RNG object using the {@code org.apache.commons.math3.random.Well44497b}
+	 * Creates a new RNG object using the {@link org.apache.commons.math3.random.Well44497b}
 	 * RNG. Seeded using system time.
 	 */
 	public Random() {
