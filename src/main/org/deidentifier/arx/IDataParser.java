@@ -3,7 +3,7 @@ package org.deidentifier.arx;
 /**
  * Implementing classes are able to convert data of type T from and to a String representation.
  * The implementing class should ensure that the mapping from text to data is sound and
- * converting back and forth does not change the data.
+ * converting data to a String and back does not change its value.
  * 
  * @author Wesper
  *
