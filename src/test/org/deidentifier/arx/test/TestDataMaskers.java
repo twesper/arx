@@ -7,6 +7,7 @@ import org.deidentifier.arx.DataType;
 import org.deidentifier.arx.masking.ConstantShiftDateMasker;
 import org.deidentifier.arx.masking.ConstantShiftDecimalMasker;
 import org.deidentifier.arx.masking.ShuffleMasker.ShuffleStringMasker;
+import org.deidentifier.arx.masking.SplitAndReplaceStringMasker;
 import org.joda.time.Period;
 import org.junit.Test;
 
@@ -58,6 +59,31 @@ public class TestDataMaskers extends AbstractTest {
 		
 		//System.out.println();
 		//System.out.print(Arrays.toString(dict));
+	}
+	
+	@Test
+	public void testStringSplittingAndJoining() {
+		String input = "john.doe@email.com";
+		SplitAndReplaceStringMasker masker =
+				new SplitAndReplaceStringMasker("[@.]", "*", 2, true);
+		
+		String correctOutput = "john.doe@*****.com";
+		String observedOutput = masker.mask(input);
+		
+		System.out.println(masker.mask(input));
+		assertTrue(correctOutput.equals(observedOutput));
+		
+		
+		masker.setRegEx("@");
+		masker.setReplacementString("[REDACTED]");
+		masker.setReplaceGroup(0);
+		masker.setReplacingEachCharacter(false);
+		
+		correctOutput = "[REDACTED]@email.com";
+		observedOutput = masker.mask(input);
+		
+		System.out.println(masker.mask(input));
+		assertTrue(correctOutput.equals(observedOutput));
 	}
 
 }

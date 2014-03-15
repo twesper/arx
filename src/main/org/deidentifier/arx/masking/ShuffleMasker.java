@@ -15,7 +15,7 @@ public class ShuffleMasker<T> extends AbstractDictionaryMasker<T> {
 
 	@Override
 	public void maskList(List<T> data) {
-		Collections.shuffle(data, new Random());
+		Collections.shuffle(data, Random.staticInstance);
 	}
 	
 	public static class ShuffleDecimalMasker	extends ShuffleMasker<Double>	{ };

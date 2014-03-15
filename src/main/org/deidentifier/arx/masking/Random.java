@@ -17,7 +17,12 @@ import org.apache.commons.math3.random.Well44497b;
 public final class Random extends RandomAdaptor {
 	
 	private static final long serialVersionUID = -8827826017115532703L;
-
+	
+	/**
+	 * A static instance of the RNG. 
+	 */
+	public static final Random staticInstance = new Random();
+	
 	/**
 	 * Creates a new RNG object using the {@link org.apache.commons.math3.random.Well44497b}
 	 * RNG. Seeded using system time.
