@@ -18,10 +18,23 @@ public class RandomShiftDecimalMasker extends AbstractInstBasedDictMasker<Double
 	private RealDistribution	distribution;
 	private double				shiftConstant = 0.0d;
 	
+	/**
+	 * Creates a new random shift masker based on the given distribution.
+	 * @param distribution The probability distribution from which the shift distances are
+	 * sampled.
+	 */
 	public RandomShiftDecimalMasker(RealDistribution distribution) {
 		this(distribution, 0.0d);
 	}
 	
+	/**
+	 * Creates a new random shift masker based on the given distribution. A constant shift
+	 * can be applied to the values sampled from the distribution to allow some easy
+	 * modification of the distribution.
+	 * @param distribution The probability distribution from which the shift distances are
+	 * sampled.
+	 * @param shiftConstant The shift constant added to the sampled values.
+	 */
 	public RandomShiftDecimalMasker(RealDistribution distribution, double shiftConstant) {
 		this.distribution = distribution;
 		this.shiftConstant = shiftConstant;

@@ -2,6 +2,15 @@ package org.deidentifier.arx.masking;
 
 import org.apache.commons.lang.RandomStringUtils;
 
+/**
+ * A masker that generates random strings according to a set of user-specified rules.
+ * <p>
+ * The user can specify the length of the generated strings or whether to use the length of the
+ * input strings, he can choose to generate alphabetic, numeric or alphanumeric strings or he
+ * can specify a set of characters from which the strings are constructed.
+ * 
+ * @author Wesper
+ */
 public class GenerateRandomStringMasker extends AbstractInstBasedDictMasker<String> {
 
 	/** The number of characters the replacement shall consist of. If length < 0, the length of 
@@ -102,7 +111,7 @@ public class GenerateRandomStringMasker extends AbstractInstBasedDictMasker<Stri
 	}
 	
 	/**
-	 * Generates a new random string in the format specified at construction.
+	 * Generates a new random string according to the rules specified in the constructor.
 	 */
 	@Override
 	public String mask(String input) {

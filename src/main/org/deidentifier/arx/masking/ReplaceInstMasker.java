@@ -16,6 +16,9 @@ public class ReplaceInstMasker<T> extends AbstractReplaceInstMasker<T> {
 		this.replacementValue = replacementValue;
 	}
 	
+	/**
+	 * Returns the constant replacement value.
+	 */
 	@Override
 	public T createReplacement() {
 		return replacementValue;

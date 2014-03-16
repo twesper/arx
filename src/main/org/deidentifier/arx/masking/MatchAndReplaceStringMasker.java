@@ -4,6 +4,29 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+/**
+ * A masker that tries to find matches in the input strings using a given regex pattern and
+ * replaces found matches with a user-specified replacement string.
+ * <p>
+ * It is possible to either replace all matches or only the first, leftmost one. Instead of
+ * replacing the whole match with the replacement string, it is also possible to replace each
+ * character position in the match repeatedly with the same replacement string.
+ * <p>
+ * <b>Examples:</b><pre>
+ * // A masker replacing all sequences of lower-case letters with "___":
+ * MatchAndReplaceStringMasker lowerCaseMasker = new MatchAndReplaceStringMasker(
+ * 		"\p{javaLowerCase}+",	// Regex: One or more (unicode) lower-case letters. 
+ * 		"___");
+ *  
+ * // A masker that stars out the first 5 letters of the input:
+ * MatchAndReplaceStringMasker starMasker = new MatchAndReplaceStringMasker(
+ * 		"^.{0,5}",	// Regex: At least zero and up to 5 occurrences of any character, but only if it occurs at the beginning. 
+ * 		"*",		// Replacement string.
+ * 		true,		// Replace all matches.
+ * 		true);		// Replace each character in the match.
+ * </pre>
+ * @author Wesper
+ */
 public class MatchAndReplaceStringMasker extends AbstractInstBasedDictMasker<String> {
 
 	private Pattern regEx;
@@ -60,6 +83,12 @@ public class MatchAndReplaceStringMasker extends AbstractInstBasedDictMasker<Str
 		this.replacingEachCharacter	= replaceEachCharacter;
 	}
 	
+	
+	/**
+	 * Masks the given string by trying to match a regex pattern in it. If a match is found,
+	 * the masking is applied using the rules specified by the masker's current state. If no
+	 * match is found, the input is returned unchanged.
+	 */
 	@Override
 	public String mask(String input) {
 		Matcher matcher = regEx.matcher(input);
@@ -132,7 +161,5 @@ public class MatchAndReplaceStringMasker extends AbstractInstBasedDictMasker<Str
 	public void setReplacingEachCharacter(boolean replacingEachCharacter) {
 		this.replacingEachCharacter = replacingEachCharacter;
 	}
-	
-	
 
 }

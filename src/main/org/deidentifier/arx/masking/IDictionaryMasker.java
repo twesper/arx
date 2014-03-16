@@ -13,7 +13,8 @@ public interface IDictionaryMasker<T> {
 	/**
 	 * Masks the dictionary of data in the input list. The original data is overwritten.
 	 * 
-	 * @param data The list of data on which the masking is performed.
+	 * @param data The list of data on which the masking is performed and to which the masked
+	 * output is written.
 	 */
 	public void maskList(List<T> data);
 	

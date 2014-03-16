@@ -20,9 +20,9 @@ public class ReplaceDictMasker<T> extends AbstractDictionaryMasker<T> {
 	/**
 	 * Replaces the input list with this object's replacement list.
 	 * <p>
-	 * The input list must be of
-	 * equal size or smaller than the replacement list, as the input could otherwise not be
-	 * masked entirely. If the input is smaller, not all of the replacement values will be used.
+	 * The input list must be of equal size or smaller than the replacement list, as the input
+	 * could otherwise not be masked entirely. If the input is smaller, not all of the
+	 * replacement values will be used.
 	 * 
 	 * @throws IllegalArgumentException if the replacement list is smaller than the input list.
 	 */

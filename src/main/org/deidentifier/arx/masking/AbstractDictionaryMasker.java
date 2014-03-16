@@ -8,7 +8,7 @@ import java.util.Vector;
 
 /**
  * Performs data masking on whole dictionaries of data of type T.
- * The exact masking implementation must be provided in the {@code maskList} method.
+ * The exact masking implementation must be provided in the {@link #maskList} method.
  * 
  * @author Wesper
  *
@@ -20,7 +20,8 @@ public abstract class AbstractDictionaryMasker<T> implements IDictionaryMasker<T
 	 * Converts the input String array to data of type T, performs the masking and writes the
 	 * results into the input array.
 	 * 
-	 * @param dataStrings The array of strings containing the dictionary.
+	 * @param dataStrings The array of strings that contains the input dictionary and is
+	 * replaced by the masked output.
 	 * @param parser The object used to parse the data - usually a {@link
 	 * org.deidentifier.arx.DataType DataType}.
 	 */
@@ -41,9 +42,10 @@ public abstract class AbstractDictionaryMasker<T> implements IDictionaryMasker<T
 	}
 	
 	/**
-	 * Masks the given array of data elements.
+	 * Masks the given array of data elements and writes the result back into it.
 	 * 
-	 * @param input The input array containing the dictionary of data to be masked.
+	 * @param input The input array containing the dictionary of data to be masked. The masked
+	 * output replaces its data.
 	 */
 	public void maskArray(T[] input) {
 		maskList(Arrays.asList(input));

@@ -10,10 +10,17 @@ public class ConstantShiftDecimalMasker extends AbstractInstBasedDictMasker<Doub
 
 	protected double shiftDistance;
 	
+	/**
+	 * Creates a constant shift masker that shifts the input decimals by the specified constant.
+	 * @param shiftDistance The shift added to the input decimals.
+	 */
 	public ConstantShiftDecimalMasker(double shiftDistance) {
 		this.shiftDistance = shiftDistance;
 	}
 	
+	/**
+	 * Shifts the input decimal by a constant.
+	 */
 	@Override
 	public Double mask(Double input) {
 		return input + shiftDistance;

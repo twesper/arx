@@ -13,6 +13,9 @@ import java.util.List;
  */
 public class ShuffleMasker<T> extends AbstractDictionaryMasker<T> {
 
+	/**
+	 * Masks the input list by shuffling its entries.
+	 */
 	@Override
 	public void maskList(List<T> data) {
 		Collections.shuffle(data, Random.staticInstance);

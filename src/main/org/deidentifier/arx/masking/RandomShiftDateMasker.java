@@ -11,16 +11,19 @@ import org.joda.time.ReadablePeriod;
  * A masker that shifts dates randomly according to a given probability distribution.
  * <p>
  * The shift distance is calculated by sampling an integer from the distribution and multiplying
- * it with the supplied base period. Optionally, a constant shift is applied sampled integer.
- * (This makes it easy to shift e.g. the center of a binomial distribution around P(X = 0).)
+ * it with the supplied base period. Optionally, a constant shift is applied to the sampled
+ * integer. (This makes it easy to shift e.g. the center of a binomial distribution around
+ * P(X = 0).)
  * <p>
- * Example:<pre>
+ * <b>Example:</b><pre>
  * // A masker that shifts dates randomly in a range from -3 to +3 days:
- * int n = 7;	// Range of 7 days
+ * int n = 6;	// Range of [0...6] = 7 days
  * double p = 0.5;	// Coefficent for binomial distribution
- * int shift = -3;	// Center distribution around P(X = 0)
+ * int shift = -3;	// Center distribution around P(X = 0).
  * RandomShiftDateMasker masker = new RandomShiftDateMasker(
- * 	new BinomialDistribution(n, p), shift, Days.ONE );</pre>
+ * 		new {@link org.apache.commons.math3.distribution.BinomialDistribution BinomialDistribution}(n, p),
+ * 		shift,
+ * 		{@link org.joda.time.Days Days}.ONE );</pre>
  * 
  * @author Wesper
  *
