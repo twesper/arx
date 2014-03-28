@@ -13,8 +13,8 @@ import org.apache.commons.math3.distribution.IntegerDistribution;
 public class GenerateRandomIntegerDecimalMasker extends
 				AbstractReplaceInstMasker<Double> {
 
-	IntegerDistribution	distribution;
-	int					shiftConstant = 0;
+	private IntegerDistribution	distribution;
+	private int					shiftConstant = 0;
 	
 	/**
 	 * Creates a new random generator based on the given distribution.
